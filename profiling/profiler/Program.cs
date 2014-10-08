@@ -1,4 +1,8 @@
-﻿using BitMiracle.LibTiff.Classic;
+﻿using System;
+using System.Collections.Generic;
+using BitMiracle.LibTiff.Classic;
+using profiler.io;
+using CsvReader = profiler.io.CsvReader;
 
 
 namespace profiler
@@ -7,7 +11,17 @@ namespace profiler
     {
         static void Main(string[] args)
         {
-            using (Tiff image = Tiff.Open(@"E:\storm_data\test.tif", "r"))
+           var reader = new CsvReader();
+           List<DataRecord> readCsvList = reader.ReadCsvList(@"E:\spots_snr_3_SD_2.2_coords _test.csv");
+
+            foreach (var dataRecord in readCsvList)
+            {
+                Console.WriteLine(String.Format("dataRecord.id = {0}   dataRecord.X = {1}   dataRecord.Y = {2}   dataRecord.Intensity = {3} \n", dataRecord.Id, dataRecord.X, dataRecord.Y, dataRecord.Intensity));
+            }
+            
+
+
+            using (Tiff image = Tiff.Open(@"E:\myMultipageFile.tif", "r"))
             {
                 if (image == null)
                     return;
