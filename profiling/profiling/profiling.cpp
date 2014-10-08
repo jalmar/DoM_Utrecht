@@ -2,13 +2,17 @@
 //
 
 #include "stdafx.h"
-
 #include <iostream>
+
+#include "tiffreader.h"
+#include <tiffio.h>
 
 #include <CL/cl.h>
 //#include <CL/cl_gl.h>
 //#include <CL/cl_platform.h>
 //#include <CL/clext.h>
+
+using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -17,9 +21,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	cl_uint ok = 1;
 	clGetPlatformIDs(ok, &test, &num);
 
-	std::cout << "test" << std::endl;
-	std::cout << "Number of OpenCL platforms found: " << num << std::endl;
+	cout << "test" << std::endl;
+	cout << "Number of OpenCL platforms found: " << num << std::endl;
 
+	Load_image();
+	
 	return 0;
 }
-
