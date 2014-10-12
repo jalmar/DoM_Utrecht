@@ -20,6 +20,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	cl_uint num;
 	cl_uint ok = 1;
 	clGetPlatformIDs(ok, &test, &num);
+	
 
 	cout << "test" << std::endl;
 	cout << "Number of OpenCL platforms found: " << num << std::endl;
