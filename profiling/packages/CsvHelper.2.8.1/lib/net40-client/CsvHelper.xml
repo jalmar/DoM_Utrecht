@@ -739,7 +739,7 @@
             </summary>
             <exception cref="T:System.ObjectDisposedException"/>
         </member>
-        <member name="M:CsvHelper.CsvParser.AddFieldToRecord(System.Int32@,System.String)">
+        <member name="M:CsvHelper.CsvParser.AddFieldToRecord(System.Int32@,System.String,System.Boolean@)">
             <summary>
             Adds the field to the current record.
             </summary>
@@ -767,7 +767,7 @@
             </summary>
             <returns>The line separated into fields.</returns>
         </member>
-        <member name="M:CsvHelper.CsvParser.GetChar(System.Char@,System.Int32@,System.Int32@,System.String@,System.Boolean,System.Int32@,System.Int32@,System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:CsvHelper.CsvParser.GetChar(System.Char@,System.Int32@,System.Int32@,System.String@,System.Boolean@,System.Boolean,System.Int32@,System.Int32@,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Gets the current character from the buffer while
             advancing the buffer if it ran out.
@@ -2320,7 +2320,20 @@
             Gets or sets a value indicating if headers of reference
             properties should get prefixed by the parent property name 
             when automapping.
-            True to prefix, otherwise false, Default is false.
+            True to prefix, otherwise false. Default is false.
+            </summary>
+        </member>
+        <member name="P:CsvHelper.Configuration.CsvConfiguration.ThrowOnBadData">
+            <summary>
+            Gets or sets a value indicating if an exception should
+            be thrown when bad field data is detected.
+            True to throw, otherwise false. Default is false.
+            </summary>
+        </member>
+        <member name="P:CsvHelper.Configuration.CsvConfiguration.BadDataCallback">
+            <summary>
+            Gets or sets a method that gets called when bad
+            data is detected.
             </summary>
         </member>
         <member name="P:CsvHelper.Configuration.CsvConfiguration.IgnoreReadingExceptions">
