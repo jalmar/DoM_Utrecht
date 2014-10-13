@@ -2,3 +2,7 @@
 *.class
 
 dist/DoM_GPU.jar
+
+profiling/ipch
+profiling/Debug
+profling/Release
