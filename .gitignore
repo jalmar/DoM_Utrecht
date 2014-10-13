@@ -5,4 +5,14 @@ dist/DoM_GPU.jar
 
 profiling/ipch
 profiling/Debug
-profling/Release
+profiling/Release
+
+profiling/profiler/bin
+profiling/profiler/obj
+profiling/profiler/Debug
+profiling/profiler/Release
+
+profiling/profiling/bin
+profiling/profiling/obj
+profiling/profiling/Debug
+profiling/profiling/Release
