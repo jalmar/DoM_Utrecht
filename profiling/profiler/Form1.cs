@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using BitMiracle.LibTiff.Classic;
 using Cloo;
+using profiler.io;
 
 namespace profiler
 {
@@ -22,21 +24,6 @@ namespace profiler
 
             PlatformCombox.DataSource = platforms.ToList();
             PlatformCombox.DisplayMember = "Name";
-
-
-            // create context with all gpu devices
-//            ComputeContext context = new ComputeContext(ComputeDeviceTypes.Gpu, new ComputeContextPropertyList(platform), null, IntPtr.Zero);
-
-            // create a command queue with first gpu found
-//            ComputeCommandQueue queue = new ComputeCommandQueue(context, context.Devices[0], ComputeCommandQueueFlags.None);
-
-//           var reader = new CsvReader();
-//           List<DataRecord> readCsvList = reader.ReadCsvList(@"E:\spots_snr_3_SD_2.2_coords _test.csv");
-
-//            foreach (var dataRecord in readCsvList)
-//            {
-//                Console.WriteLine(String.Format("dataRecord.id = {0}   dataRecord.X = {1}   dataRecord.Y = {2}   dataRecord.Intensity = {3} \n", dataRecord.Id, dataRecord.X, dataRecord.Y, dataRecord.Intensity));
-//            }
         }
 
         private void PlatformCombox_SelectedIndexChanged(object sender, EventArgs e)
@@ -73,9 +60,18 @@ namespace profiler
             CalculateConvolution(context);
         }
 
-        private void CalculateConvolution(ComputeContext context)
+        private void CalculateConvolution(ComputeContext computeContext)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Computing...");
+            Console.WriteLine("Reading data file...");
+
+            TiffReader.Read();
+
+            Console.WriteLine("Reading data file... done");
+
+            throw new NotImplementedException("Call openCL kernel");
+
+            Console.WriteLine("Computing... done");
         }
 
         private void buttonSelectFile_Click(object sender, EventArgs e)
@@ -91,6 +87,17 @@ namespace profiler
             if(fdlg.ShowDialog() == DialogResult.OK)
             {
                 labelImage.Text = fdlg.FileName;
+            }
+        }
+
+        private void ReadTiff(String filename = @"D:\spots_snr_3_SD_2.2_coords _test.csv")
+        {
+            var reader = new CsvReader();
+           List<DataRecord> readCsvList = reader.ReadCsvList(filename);
+
+            foreach (var dataRecord in readCsvList)
+            {
+                Console.WriteLine(String.Format("dataRecord.id = {0}   dataRecord.X = {1}   dataRecord.Y = {2}   dataRecord.Intensity = {3} \n", dataRecord.Id, dataRecord.X, dataRecord.Y, dataRecord.Intensity));
             }
         }
     }
