@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "tiffreader.h"
-#include <tiffio.h>
+//#include <tiffio.h>
 
 #include <CL/cl.h>
 //#include <CL/cl_gl.h>
