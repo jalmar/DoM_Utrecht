@@ -35,6 +35,8 @@
             this.labelImage = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.buttonSelectDir = new System.Windows.Forms.Button();
+            this.labelDirSelected = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // PlatformCombox
@@ -101,11 +103,31 @@
             this.label2.TabIndex = 6;
             this.label2.Text = "Select Device";
             // 
+            // buttonSelectDir
+            // 
+            this.buttonSelectDir.Location = new System.Drawing.Point(13, 188);
+            this.buttonSelectDir.Name = "buttonSelectDir";
+            this.buttonSelectDir.Size = new System.Drawing.Size(75, 23);
+            this.buttonSelectDir.TabIndex = 7;
+            this.buttonSelectDir.Text = "Select dir";
+            this.buttonSelectDir.UseVisualStyleBackColor = true;
+            this.buttonSelectDir.Click += new System.EventHandler(this.buttonSelectDir_Click);
+            // 
+            // labelDirSelected
+            // 
+            this.labelDirSelected.AutoSize = true;
+            this.labelDirSelected.Location = new System.Drawing.Point(94, 193);
+            this.labelDirSelected.Name = "labelDirSelected";
+            this.labelDirSelected.Size = new System.Drawing.Size(0, 13);
+            this.labelDirSelected.TabIndex = 8;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(424, 261);
+            this.Controls.Add(this.labelDirSelected);
+            this.Controls.Add(this.buttonSelectDir);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.labelImage);
@@ -129,5 +151,7 @@
         private System.Windows.Forms.Label labelImage;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button buttonSelectDir;
+        private System.Windows.Forms.Label labelDirSelected;
     }
 }

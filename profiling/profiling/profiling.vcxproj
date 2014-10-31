@@ -86,14 +86,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(CUDA_PATH)/include;$(CUDA_INC_PATH);C:\Users\Jens\Documents\GitHub\DoM_Utrecht-GPU\profiling\profiling\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(CUDA_PATH)/include;$(CUDA_INC_PATH);E:\Projects\GitHub\DoM_Utrecht-GPU\profiling\profiling\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(CUDA_PATH)/lib/Win32;$(CUDA_LIB_PATH);C:\Users\Jens\Documents\GitHub\DoM_Utrecht-GPU\profiling\profiling\libtiff</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenCL.lib;libtiff.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CUDA_PATH)/lib/Win32;$(CUDA_LIB_PATH);$(ProjectDir)\libtiff;E:\Projects\GitHub\DoM_Utrecht-GPU\profiling\profiling\libtiff</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenCL.lib;libtiff.lib;E:\\Projects\\GitHub\\DoM_Utrecht-GPU\\profiling\\profiling\\libtiff\\libtiff.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>

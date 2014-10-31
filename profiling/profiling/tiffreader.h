@@ -1,6 +1,6 @@
-#include <tiffio.h>
 #include <vector>
 #include <iostream>
+#include "libtiff\tiffio.h"
 
 using namespace std;
 

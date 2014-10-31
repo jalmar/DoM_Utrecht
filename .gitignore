@@ -6,6 +6,8 @@ dist/DoM_GPU.jar
 *.opensdf
 *.sdf
 
+profiling/profiling.sdf
+
 profiling/ipch
 profiling/Debug
 profiling/Release
