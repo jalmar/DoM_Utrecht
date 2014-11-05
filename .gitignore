@@ -209,3 +209,6 @@ FakesAssemblies/
 
 *.sdf
 *.suo
+
+profiling/profiling.sdf
+profiling/profiling.sdf
