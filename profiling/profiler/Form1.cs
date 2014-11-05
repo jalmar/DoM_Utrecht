@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using BitMiracle.LibTiff.Classic;
 using Cloo;
 using profiler.io;
 
@@ -23,6 +24,31 @@ namespace profiler
 
             PlatformCombox.DataSource = platforms.ToList();
             PlatformCombox.DisplayMember = "Name";
+        }
+
+        private void LoadKernels(ComputeContext computeContext)
+        {
+            String kernelString;
+            using (var sr = new StreamReader("../FittingKernelLMA.cl"))
+                kernelString = sr.ReadToEnd();
+
+            var kernels = new ComputeProgram(computeContext, kernelString);
+
+            kernels.Build(computeContext.Devices, null, null, IntPtr.Zero);
+
+            ComputeProgramBuildStatus computeProgramBuildStatus = kernels.GetBuildStatus(computeContext.Devices[0]);
+            Console.WriteLine(computeProgramBuildStatus);
+
+            String buildLog = kernels.GetBuildLog(computeContext.Devices[0]);
+            Console.WriteLine(buildLog);
+
+            ICollection<ComputeKernel> computeKernels = kernels.CreateAllKernels();
+
+            KernelComboBox.DataSource = computeKernels;
+            KernelComboBox.DisplayMember = "FunctionName";
+
+            //Call convolve_image_2d kernel
+//            var kernel = (ComputeKernel)computeKernels.Select(c => c.FunctionName == "convolve_image_2d");
         }
 
         private void PlatformCombox_SelectedIndexChanged(object sender, EventArgs e)
@@ -48,16 +74,22 @@ namespace profiler
             var selectedDevice = (ComputeDevice) comboBox.SelectedItem;
 
             Console.WriteLine("Selected device : " + selectedDevice.Name);
+
+            var selectedComputePlatform = (ComputePlatform)PlatformCombox.SelectedItem;
+            var selectedComputeDevice = (ComputeDevice)DeviceCombox.SelectedItem;
+
+            var context = new ComputeContext(selectedComputeDevice.Type,
+                new ComputeContextPropertyList(selectedComputePlatform), null, IntPtr.Zero);
+
+            LoadKernels(context);
         }
 
         private void buttonCalculate_Click(object sender, EventArgs e)
         {
-            var selectedComputePlatform = (ComputePlatform) PlatformCombox.SelectedItem;
-            var selectedComputeDevice = (ComputeDevice) DeviceCombox.SelectedItem;
+            bool writeToDisk = TiffData.WriteToDisk(new MemoryStream(), "c:\\Users\\Jens\\Documents\\test.tif", 0, 0, 0, 0);
 
-            var context = new ComputeContext(selectedComputeDevice.Type,
-                new ComputeContextPropertyList(selectedComputePlatform), null, IntPtr.Zero);
-            CalculateConvolution(context);
+//            Tiff dataImage = TiffData.Read();
+//            CalculateConvolution(context);
         }
 
         private void CalculateConvolution(ComputeContext computeContext)
@@ -65,11 +97,18 @@ namespace profiler
             Console.WriteLine("Computing...");
             Console.WriteLine("Reading data file...");
 
-            TiffReader.Read();
-
             Console.WriteLine("Reading data file... done");
 
+
+
+
+//            var computeCommandQueue = new ComputeCommandQueue(computeContext,computeContext.Devices[0],ComputeCommandQueueFlags.None);
+
+            
+            
+
             throw new NotImplementedException("Call openCL kernel");
+//            computeCommandQueue.Execute(kernel,null,null,null,null);
 
             Console.WriteLine("Computing... done");
         }
@@ -122,19 +161,6 @@ namespace profiler
             Console.WriteLine("Files found: " + files.Count, "Message");
 
             labelDirSelected.Text = fbd.SelectedPath;
-
-            //            var fdlg = new Open
-            //            {
-            //                Title = "C# Corner Open File Dialog",
-            //                InitialDirectory = @"c:\",
-            //                Filter = "Image files (*.tif, *.tiff, *.png) | *.tif; *.tiff; *.png",
-            //                FilterIndex = 2,
-            //                RestoreDirectory = true
-            //            };
-            //            if (fdlg.ShowDialog() == DialogResult.OK)
-            //            {
-            //                labelImage.Text = fdlg.FileName;
-            //            }
         }
     }
 }
