@@ -74,7 +74,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="io\CsvReader.cs" />
-    <Compile Include="io\TiffReader.cs" />
+    <Compile Include="io\TiffData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
