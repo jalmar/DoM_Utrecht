@@ -1,42 +1,90 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using BitMiracle.LibTiff.Classic;
+using Orientation = BitMiracle.LibTiff.Classic.Orientation;
 
 namespace profiler.io
 {
     class TiffData
     {
-        public static bool WriteToDisk(MemoryStream data, string fileName, int width, int height, int bitsPerSample, int samplesPerPixel, Compression compression = Compression.NONE)
+        public static bool WriteToDisk(Tiff data, String fileName)
         {
+            return false;
+        }
+        public static bool WriteToDisk(List<MemoryStream> data, String fileName)
+        {
+            return false;
+        }
+        public static bool WriteToDisk(MemoryStream data, String fileName, int imageWidth, int imageHeight, int samplesPerPixel = 1, Compression compression = Compression.NONE, int bitsPerSample = 16)
+        {//call this function after kernel convolution
             if (data == null)
                 throw new Exception("no data provided");
             var ts = new TiffStream();
 //            ts.Read(null, data.ToArray(), 0, (int)data.Length);
 
-//            using (Tiff imageData = Tiff.Open(fileName, "w"))
-//            {
-//                imageData.SetField(TiffTag.IMAGEWIDTH, width.ToString(CultureInfo.InvariantCulture));
-//                imageData.SetField(TiffTag.IMAGELENGTH, height.ToString(CultureInfo.InvariantCulture));
-//                imageData.SetField(TiffTag.COMPRESSION, compression);
-//                imageData.SetField(TiffTag.BITSPERSAMPLE, bitsPerSample.ToString(CultureInfo.InvariantCulture));
+            var random = new Random();
+            int pixelCount = imageHeight * imageWidth;
+
+            var samplesBytes = new byte[pixelCount*2];
+
+            for (int i = 0; i < pixelCount; i++)
+            {
+                byte[] bytes = BitConverter.GetBytes(((short) random.Next(0, short.MaxValue)));
+
+                for (int j = 0; j < 2; j++)
+                {
+                    samplesBytes[i + j] = bytes[j];
+                }
+            }
+
+            data = new MemoryStream(samplesBytes);
+
+//            ts.Write(null, samplesBytes, 0, pixelCount*2);
+            fileName = "../../randomStream.tif";
+            
+            using (Tiff imageData = Tiff.Open(fileName, "w"))
+            {
+                imageData.SetField(TiffTag.IMAGEWIDTH, imageWidth.ToString(CultureInfo.InvariantCulture));
+                imageData.SetField(TiffTag.IMAGELENGTH, imageHeight.ToString(CultureInfo.InvariantCulture));
+                imageData.SetField(TiffTag.COMPRESSION, compression);
+                imageData.SetField(TiffTag.BITSPERSAMPLE, bitsPerSample.ToString(CultureInfo.InvariantCulture));
 //                imageData.SetField(TiffTag.SAMPLESPERPIXEL, samplesPerPixel);
-//                imageData.SetField(TiffTag.XRESOLUTION, 1);
-//                imageData.SetField(TiffTag.YRESOLUTION, 1);
-//                imageData.SetField(TiffTag.DATETIME, DateTime.Now);
-//                imageData.SetField(TiffTag.ARTIST, "ProjectStorm");
-//                imageData.SetField(TiffTag.RESOLUTIONUNIT, ResUnit.CENTIMETER);
-//                imageData.SetField(TiffTag.IMAGEDESCRIPTION, "Data constructed by openCL kernel of project storm");
+                imageData.SetField(TiffTag.XRESOLUTION, 1);
+                imageData.SetField(TiffTag.YRESOLUTION, 1);
+                imageData.SetField(TiffTag.DATETIME, DateTime.Now);
+//                imageData.SetField(TiffTag.ROWSPERSTRIP, imageHeight.ToString(CultureInfo.InvariantCulture));
+                imageData.SetField(TiffTag.PLANARCONFIG, PlanarConfig.CONTIG);
+                imageData.SetField(TiffTag.PHOTOMETRIC, Photometric.MINISBLACK);
+                imageData.SetField(TiffTag.FILLORDER, FillOrder.MSB2LSB);
+                imageData.SetField(TiffTag.ORIENTATION, Orientation.TOPLEFT);
+                imageData.SetField(TiffTag.RESOLUTIONUNIT, ResUnit.CENTIMETER);
 
-//                imageData.WriteRawStrip(0, data.ToArray(), (int) data.Length);
+                imageData.SetField(TiffTag.ARTIST, "ProjectStorm");
+                imageData.SetField(TiffTag.IMAGEDESCRIPTION, "Test data constructed by openCL kernel of project storm");
+
+//                imageData.SetDirectory(0);
+
+                for (int i = 0; i < imageHeight; i++)
+                {
+                    imageData.WriteRawStrip(i, samplesBytes, imageWidth);
+//                    imageData.WriteScanline(samplesBytes, i);
+                }
+                
 //                imageData.WriteDirectory();
-//            }
+                imageData.FlushData();
+                imageData.Close();
+            }
+            
+            return true;
+        }
 
-
-
+        public void TestTiffWrite()
+        {
             int width1 = 800;
             int height1 = 800;
-            string fileName1 = "c:\\Users\\Jens\\Documents\\random.tif";
+            string fileName1 = "../../random.tif";
             using (Tiff output = Tiff.Open(fileName1, "w"))
             {
                 output.SetField(TiffTag.IMAGEWIDTH, width1);
@@ -52,24 +100,24 @@ namespace profiler.io
                 output.SetField(TiffTag.PHOTOMETRIC, Photometric.MINISBLACK);
                 output.SetField(TiffTag.COMPRESSION, Compression.NONE);
                 output.SetField(TiffTag.FILLORDER, FillOrder.MSB2LSB);
+                output.SetField(TiffTag.DATETIME, DateTime.Now);
+                output.SetField(TiffTag.ARTIST, "ProjectStorm");
 
-                Random random = new Random();
+                var random = new Random();
                 for (int i = 0; i < height1; i++)
                 {
-                    short[] samples = new short[width1];
+                    var samples = new short[width1];
                     for (int j = 0; j < width1; j++)
                         samples[j] = (short)random.Next(0, short.MaxValue);
 
-                    byte[] buffer = new byte[samples.Length * sizeof(short)];
+                    var buffer = new byte[samples.Length * sizeof(short)];
                     Buffer.BlockCopy(samples, 0, buffer, 0, buffer.Length);
                     output.WriteScanline(buffer, i);
                 }
             }
-
-
-            return true;
         }
-        public static Tiff Read(String fileName = @"D:\myMultipageFile.tif")
+
+        public static Tiff ReadFromDisk(String fileName = @"D:\myMultipageFile.tif")
         {
             using (Tiff image = Tiff.Open(fileName, "r"))
             {
@@ -86,8 +134,7 @@ namespace profiler.io
                 int numberOfStrips = image.NumberOfStrips();
                 int numberOfTiles = image.NumberOfTiles();
 
-                Console.WriteLine("{0} directories in {1} using the NumberOfDirectories() method",
-                    numberOfDirectories, image.FileName());
+                Console.WriteLine("{0} directories in {1} using the NumberOfDirectories() method", numberOfDirectories, image.FileName());
 
                 int dircount = 0;
                 do
