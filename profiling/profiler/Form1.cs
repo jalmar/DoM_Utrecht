@@ -16,6 +16,10 @@ namespace profiler
         private ComputePlatform selectedComputePlatform = null;
         private ComputeDevice selectedComputeDevice = null;
 
+        private int ImageDimensionX = 0;
+        private int ImageDimensionY = 0;
+        private int ImageDimensionZ = 0;
+
         public Form1()
         {
             InitializeComponent();
@@ -45,14 +49,6 @@ namespace profiler
 
             String buildLog = kernels.GetBuildLog(computeContext.Devices[0]);
             Console.WriteLine(buildLog);
-
-            ICollection<ComputeKernel> computeKernels = kernels.CreateAllKernels();
-
-            KernelComboBox.DataSource = computeKernels;
-            KernelComboBox.DisplayMember = "FunctionName";
-
-            //Call convolve_image_2d kernel
-//            var kernel = (ComputeKernel)computeKernels.Select(c => c.FunctionName == "convolve_image_2d");
         }
 
         private void PlatformCombox_SelectedIndexChanged(object sender, EventArgs e)
@@ -93,6 +89,10 @@ namespace profiler
 //            bool writeToDisk = TiffData.WriteToDisk(new MemoryStream(), "c:\\Users\\Jens\\Documents\\test.tif", 128, 128, 0, 0);
 
 //            Tiff dataImage = TiffData.Read();
+
+            ImageDimensionX = Convert.ToInt32(TextBoxImageDimensionX.Text);
+            ImageDimensionY = Convert.ToInt32(TextBoxImageDimensionY.Text);
+            ImageDimensionZ = Convert.ToInt32(TextBoxImageDimensionZ.Text);
 
             var context = new ComputeContext(selectedComputeDevice.Type, new ComputeContextPropertyList(selectedComputePlatform), null, IntPtr.Zero);
             CalculateConvolution(context);
@@ -135,78 +135,77 @@ namespace profiler
             String buildLog = computeProgram.GetBuildLog(computeContext.Devices[0]);
             Console.WriteLine(buildLog);
 
+            float[] readFluorphors = CsvData.ReadFluorphors("../../../data/fluorophores_radial_45_label_500_persistence_length_2000.csv").ToArray();
+
 //create buffers
     //csv
-            ComputeBuffer<short> mt_fluorophores_coordsX = new ComputeBuffer<short>(computeContext, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, new short[1]);
-            ComputeBuffer<short> mt_fluorophores_coordsY = new ComputeBuffer<short>(computeContext, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, new short[1]);
-            ComputeBuffer<short> mt_fluorophores_coordsZ = new ComputeBuffer<short>(computeContext, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, new short[1]);
-
-            ComputeBuffer<short> mt_segments_coordsX = new ComputeBuffer<short>(computeContext, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, new short[1]);
-            ComputeBuffer<short> mt_segments_coordsY = new ComputeBuffer<short>(computeContext, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, new short[1]);
-            ComputeBuffer<short> mt_segments_coordsZ = new ComputeBuffer<short>(computeContext, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, new short[1]);
-
-            ComputeBuffer<short> mt_tubulins_coordsX = new ComputeBuffer<short>(computeContext, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, new short[1]);
-            ComputeBuffer<short> mt_tubulins_coordsY = new ComputeBuffer<short>(computeContext, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, new short[1]);
-            ComputeBuffer<short> mt_tubulins_coordsZ = new ComputeBuffer<short>(computeContext, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, new short[1]);
-
+            ComputeBuffer<float> mt_fluorophores_coordsXYZw = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, readFluorphors);
 
     //transformation matrix
-            ComputeImageFormat transformationMatrixFormat = new ComputeImageFormat(ComputeImageChannelOrder.Intensity, ComputeImageChannelType.SignedInt16);
-            ComputeImage2D transformationMatrix = new ComputeImage2D(computeContext, ComputeMemoryFlags.ReadWrite, transformationMatrixFormat, 128, 128, 0, IntPtr.Zero);
+//            ComputeImageFormat transformationMatrixFormat = new ComputeImageFormat(ComputeImageChannelOrder.Intensity, ComputeImageChannelType.SignedInt16);
+//            ComputeImage2D transformationMatrix = new ComputeImage2D(computeContext, ComputeMemoryFlags.ReadWrite, transformationMatrixFormat, 128, 128, 0, IntPtr.Zero);
+
+            float dx = 0;
+            float dy = 0;
+            float dz = 0;
+
+            float[] transformationMatrixArray = new float[]
+            {
+                ImageDimensionX, 0,0,dx,
+                0,ImageDimensionY,0,dy,
+                0,0,ImageDimensionZ, dz,
+                0,0,0,1
+            };
+
+
+
+            ComputeBuffer<float> transformationMatrix = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadOnly, transformationMatrixArray);
 
     //resulting image
-            ComputeImageFormat resultImageFormat = new ComputeImageFormat(ComputeImageChannelOrder.Intensity, ComputeImageChannelType.SignedInt16);
-            ComputeImage2D resultImage = new ComputeImage2D(computeContext, ComputeMemoryFlags.ReadWrite, resultImageFormat, 128, 128, 0, IntPtr.Zero);
+            ushort[] resultImageDimension = new ushort[ImageDimensionX * ImageDimensionY * ImageDimensionZ];
+            ComputeBuffer<ushort> resultImage = new ComputeBuffer<ushort>(computeContext, ComputeMemoryFlags.WriteOnly, resultImageDimension);
             
 //Create the kernel & set memory
-            ComputeKernel convolutionKernel = computeProgram.CreateKernel("convolve_image_2d");
+            ComputeKernel convolutionKernel = computeProgram.CreateKernel("convolve_fluophors");
             
             //Kernel arguments
-            convolutionKernel.SetMemoryArgument(0, mt_fluorophores_coordsX);
-            convolutionKernel.SetMemoryArgument(1, mt_fluorophores_coordsY);
-            convolutionKernel.SetMemoryArgument(2, mt_fluorophores_coordsZ);
+            convolutionKernel.SetMemoryArgument(0, mt_fluorophores_coordsXYZw);
+            convolutionKernel.SetMemoryArgument(1, transformationMatrix);
 
-            convolutionKernel.SetMemoryArgument(3, mt_segments_coordsX);
-            convolutionKernel.SetMemoryArgument(4, mt_segments_coordsY);
-            convolutionKernel.SetMemoryArgument(5, mt_segments_coordsZ);
-
-            convolutionKernel.SetMemoryArgument(6, mt_tubulins_coordsX);
-            convolutionKernel.SetMemoryArgument(7, mt_tubulins_coordsY);
-            convolutionKernel.SetMemoryArgument(8, mt_tubulins_coordsZ);
-
-            convolutionKernel.SetMemoryArgument(9, transformationMatrix);
-            convolutionKernel.SetMemoryArgument(10, resultImage);
-            
-            
-
-//Create the command queue
+            //Create the command queue
             ComputeCommandQueue computeCommandQueue = new ComputeCommandQueue(computeContext, computeContext.Devices[0], ComputeCommandQueueFlags.None);
+            
+            //Call transform fluo
 
-//Catch events
             ComputeEventList events = new ComputeEventList();
 
-            computeCommandQueue.WriteToImage(IntPtr.Zero,resultImage,false, events);
+            computeCommandQueue.Write(resultImage, false, 0, 0, IntPtr.Zero, events);
             computeCommandQueue.Execute(convolutionKernel, null, new long[1024], null, events);
 
             
+            convolutionKernel.SetValueArgument(2, ImageDimensionX);
+            convolutionKernel.SetValueArgument(3, ImageDimensionY);
+            convolutionKernel.SetMemoryArgument(4, resultImage);
+
+
             MemoryStream data = new MemoryStream();
 
-            GCHandle arrCHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            computeCommandQueue.ReadFromImage(resultImage, IntPtr.Zero, true, events);
-            computeCommandQueue.Finish();
+//            GCHandle arrCHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
+//            computeCommandQueue.ReadFromImage(resultImage, IntPtr.Zero, true, events);
+//            computeCommandQueue.Finish();
 
-            arrCHandle.Free();
+//            arrCHandle.Free();
 
 //Save to disk
             
-            Console.WriteLine("Writing microtubule fluorophores to file");
-            CsvData.WriteToDisk("mt_fluorophores.csv", null, null);
+//            Console.WriteLine("Writing microtubule fluorophores to file");
+//            CsvData.WriteToDisk("mt_fluorophores.csv", null);
             
-            Console.WriteLine("Writing microtubule segements to file");
-            CsvData.WriteToDisk("mt_segments.csv", null, null);
+//            Console.WriteLine("Writing microtubule segements to file");
+//            CsvData.WriteToDisk("mt_segments.csv", null);
 
-            Console.WriteLine("Writing microtubule tubulins to file");
-            CsvData.WriteToDisk("mt_tubulins.csv", null, null);
+//            Console.WriteLine("Writing microtubule tubulins to file");
+//            CsvData.WriteToDisk("mt_tubulins.csv", null);
 
             TiffData.WriteToDisk(data, "wf_radial_45_label_500_persistence_length.tif", 128, 128);
             
@@ -259,38 +258,38 @@ namespace profiler
             }
         }
 
-        private void ReadTiff(String filename = @"D:\spots_snr_3_SD_2.2_coords _test.csv")
-        {
-            var reader = new CsvData();
-            List<DataRecord> readCsvList = reader.ReadCsvList(filename);
+//        private void ReadTiff(String filename = @"D:\spots_snr_3_SD_2.2_coords _test.csv")
+//        {
+//            var reader = new CsvData();
+//            List<DataRecord> readCsvList = reader.ReadCsvList(filename);
+//
+//            foreach (var dataRecord in readCsvList)
+//            {
+//                Console.WriteLine(
+//                    String.Format(
+//                        "dataRecord.id = {0}   dataRecord.X = {1}   dataRecord.Y = {2}   dataRecord.Intensity = {3} \n",
+//                        dataRecord.Id, dataRecord.X, dataRecord.Y, dataRecord.Intensity));
+//            }
+//        }
 
-            foreach (var dataRecord in readCsvList)
-            {
-                Console.WriteLine(
-                    String.Format(
-                        "dataRecord.id = {0}   dataRecord.X = {1}   dataRecord.Y = {2}   dataRecord.Intensity = {3} \n",
-                        dataRecord.Id, dataRecord.X, dataRecord.Y, dataRecord.Intensity));
-            }
-        }
-
-        private void buttonSelectDir_Click(object sender, EventArgs e)
-        {
-            var fbd = new FolderBrowserDialog();
-            fbd.ShowDialog();
-
-            if (fbd.SelectedPath == "")
-                return;
-
-            Console.WriteLine("Looking for file *.tif, *.tiff");
-            
-            List<string> files = Directory
-                .GetFiles(fbd.SelectedPath, "*.*")
-                .Where(file => file.ToLower().EndsWith("tif") || file.ToLower().EndsWith("tiff"))
-                .ToList();
-
-            Console.WriteLine("Files found: " + files.Count, "Message");
-
-            labelDirSelected.Text = fbd.SelectedPath;
-        }
+//        private void buttonSelectDir_Click(object sender, EventArgs e)
+//        {
+//            var fbd = new FolderBrowserDialog();
+//            fbd.ShowDialog();
+//
+//            if (fbd.SelectedPath == "")
+//                return;
+//
+//            Console.WriteLine("Looking for file *.tif, *.tiff");
+//            
+//            List<string> files = Directory
+//                .GetFiles(fbd.SelectedPath, "*.*")
+//                .Where(file => file.ToLower().EndsWith("tif") || file.ToLower().EndsWith("tiff"))
+//                .ToList();
+//
+//            Console.WriteLine("Files found: " + files.Count, "Message");
+//
+//            labelDirSelected.Text = fbd.SelectedPath;
+//        }
     }
 }

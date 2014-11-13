@@ -36,9 +36,15 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.buttonSelectDir = new System.Windows.Forms.Button();
-            this.labelDirSelected = new System.Windows.Forms.Label();
-            this.KernelComboBox = new System.Windows.Forms.ComboBox();
+            this.TextBoxImageDimensionX = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.TextBoxImageDimensionY = new System.Windows.Forms.TextBox();
+            this.TextBoxImageDimensionZ = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // PlatformCombox
@@ -74,7 +80,7 @@
             // 
             // buttonSelectFile
             // 
-            this.buttonSelectFile.Location = new System.Drawing.Point(19, 343);
+            this.buttonSelectFile.Location = new System.Drawing.Point(19, 367);
             this.buttonSelectFile.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonSelectFile.Name = "buttonSelectFile";
             this.buttonSelectFile.Size = new System.Drawing.Size(112, 35);
@@ -114,51 +120,105 @@
             // 
             // buttonSelectDir
             // 
-            this.buttonSelectDir.Location = new System.Drawing.Point(19, 388);
+            this.buttonSelectDir.Location = new System.Drawing.Point(19, 412);
             this.buttonSelectDir.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonSelectDir.Name = "buttonSelectDir";
             this.buttonSelectDir.Size = new System.Drawing.Size(112, 35);
             this.buttonSelectDir.TabIndex = 7;
             this.buttonSelectDir.Text = "Select dir";
             this.buttonSelectDir.UseVisualStyleBackColor = true;
-            this.buttonSelectDir.Click += new System.EventHandler(this.buttonSelectDir_Click);
             // 
-            // labelDirSelected
+            // TextBoxImageDimensionX
             // 
-            this.labelDirSelected.AutoSize = true;
-            this.labelDirSelected.Location = new System.Drawing.Point(141, 297);
-            this.labelDirSelected.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelDirSelected.Name = "labelDirSelected";
-            this.labelDirSelected.Size = new System.Drawing.Size(0, 20);
-            this.labelDirSelected.TabIndex = 8;
-            // 
-            // KernelComboBox
-            // 
-            this.KernelComboBox.FormattingEnabled = true;
-            this.KernelComboBox.Location = new System.Drawing.Point(17, 264);
-            this.KernelComboBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.KernelComboBox.Name = "KernelComboBox";
-            this.KernelComboBox.Size = new System.Drawing.Size(482, 28);
-            this.KernelComboBox.TabIndex = 9;
+            this.TextBoxImageDimensionX.Location = new System.Drawing.Point(50, 251);
+            this.TextBoxImageDimensionX.Name = "TextBoxImageDimensionX";
+            this.TextBoxImageDimensionX.Size = new System.Drawing.Size(100, 26);
+            this.TextBoxImageDimensionX.TabIndex = 8;
+            this.TextBoxImageDimensionX.Text = "128";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 226);
-            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label3.Location = new System.Drawing.Point(20, 225);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(103, 20);
+            this.label3.Size = new System.Drawing.Size(130, 20);
             this.label3.TabIndex = 10;
-            this.label3.Text = "Select Kernel";
+            this.label3.Text = "Image dimension";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(28, 251);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(16, 20);
+            this.label4.TabIndex = 11;
+            this.label4.Text = "x";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(28, 283);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(16, 20);
+            this.label5.TabIndex = 12;
+            this.label5.Text = "y";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(325, 225);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(116, 20);
+            this.label6.TabIndex = 13;
+            this.label6.Text = "Transformation";
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(329, 251);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(267, 28);
+            this.comboBox1.TabIndex = 14;
+            // 
+            // TextBoxImageDimensionY
+            // 
+            this.TextBoxImageDimensionY.Location = new System.Drawing.Point(51, 284);
+            this.TextBoxImageDimensionY.Name = "TextBoxImageDimensionY";
+            this.TextBoxImageDimensionY.Size = new System.Drawing.Size(100, 26);
+            this.TextBoxImageDimensionY.TabIndex = 15;
+            this.TextBoxImageDimensionY.Text = "128";
+            // 
+            // TextBoxImageDimensionZ
+            // 
+            this.TextBoxImageDimensionZ.Location = new System.Drawing.Point(51, 317);
+            this.TextBoxImageDimensionZ.Name = "TextBoxImageDimensionZ";
+            this.TextBoxImageDimensionZ.Size = new System.Drawing.Size(100, 26);
+            this.TextBoxImageDimensionZ.TabIndex = 16;
+            this.TextBoxImageDimensionZ.Text = "128";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(28, 320);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(17, 20);
+            this.label7.TabIndex = 17;
+            this.label7.Text = "z";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(636, 483);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.TextBoxImageDimensionZ);
+            this.Controls.Add(this.TextBoxImageDimensionY);
+            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.KernelComboBox);
-            this.Controls.Add(this.labelDirSelected);
+            this.Controls.Add(this.TextBoxImageDimensionX);
             this.Controls.Add(this.buttonSelectDir);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -185,8 +245,14 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button buttonSelectDir;
-        private System.Windows.Forms.Label labelDirSelected;
-        private System.Windows.Forms.ComboBox KernelComboBox;
+        private System.Windows.Forms.TextBox TextBoxImageDimensionX;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.TextBox TextBoxImageDimensionY;
+        private System.Windows.Forms.TextBox TextBoxImageDimensionZ;
+        private System.Windows.Forms.Label label7;
     }
 }
