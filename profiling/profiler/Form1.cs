@@ -20,6 +20,12 @@ namespace profiler
         private int ImageDimensionY = 0;
         private int ImageDimensionZ = 0;
 
+        private String sourceFilename = String.Empty;
+        private String saveFilename = String.Empty;
+
+        private String sourceDir = String.Empty;
+        private String saveDir = String.Empty;
+
         public Form1()
         {
             InitializeComponent();
@@ -135,7 +141,7 @@ namespace profiler
             String buildLog = computeProgram.GetBuildLog(computeContext.Devices[0]);
             Console.WriteLine(buildLog);
 
-            float[] readFluorphors = CsvData.ReadFluorphors("../../../data/fluorophores_radial_45_label_500_persistence_length_2000.csv").ToArray();
+            float[] readFluorphors = CsvData.ReadFluorophores("../../../data/fluorophores_radial_45_label_500_persistence_length_2000.csv").ToArray();
 
 //create buffers
     //csv
@@ -207,7 +213,10 @@ namespace profiler
 //            Console.WriteLine("Writing microtubule tubulins to file");
 //            CsvData.WriteToDisk("mt_tubulins.csv", null);
 
-            TiffData.WriteToDisk(data, "wf_radial_45_label_500_persistence_length.tif", 128, 128);
+            sourceFilename = "wf_radial_45_label_500_persistence_length.tif";
+            saveFilename = "wf_radial_45_label_500_persistence_length.tif";
+
+            TiffData.WriteToDisk(data, sourceFilename, 128, 128);
             
 //            computeCommandQueue.Write(CLnumAtom, false, 0, 0, IntPtr.Zero, null);
 //            computeCommandQueue.Execute(kernelAtomInc, new long[] { }, new long[1] { 1 }, new long[1] { 1 }, null);
@@ -248,48 +257,66 @@ namespace profiler
             {
                 Title = "C# Corner Open File Dialog",
                 InitialDirectory = @"c:\",
-                Filter = "Image files (*.tif, *.tiff) | *.tif; *.tiff; *.TIF; *.TIFF;",
+                Filter = "Image files (*.csv) | *.csv; *.tiff; *.TIF; *.TIFF;",
                 FilterIndex = 2,
                 RestoreDirectory = true
             };
             if (fdlg.ShowDialog() == DialogResult.OK)
             {
-                labelImage.Text = fdlg.FileName;
+                labelSelectSourceFile.Text = fdlg.FileName;
+            }
+        }
+        
+        private void radioButtonSingleFile_CheckedChanged(object sender, EventArgs e)
+        {
+            groupBoxSingleFile.Enabled = true;
+            groupBoxMultipleFiles.Enabled = false;
+        }
+
+        private void radioButtonMultipleFiles_CheckedChanged(object sender, EventArgs e)
+        {
+            groupBoxSingleFile.Enabled = false;
+            groupBoxMultipleFiles.Enabled = true;
+        }
+
+        private void buttonSaveOutputFile_Click(object sender, EventArgs e)
+        {
+            var fdlg = new SaveFileDialog
+            {
+                Title = "Save TIFF Data File",
+                InitialDirectory = @"c:\",
+                Filter = "Image files (*.tif, *.tiff) | *.tiff; *.tiff; *.TIF; *.TIFF;",
+                FilterIndex = 2,
+                RestoreDirectory = true
+            };
+            if (fdlg.ShowDialog() == DialogResult.OK)
+            {
+                labelSaveOutputFile.Text = fdlg.FileName;
             }
         }
 
-//        private void ReadTiff(String filename = @"D:\spots_snr_3_SD_2.2_coords _test.csv")
-//        {
-//            var reader = new CsvData();
-//            List<DataRecord> readCsvList = reader.ReadCsvList(filename);
-//
-//            foreach (var dataRecord in readCsvList)
-//            {
-//                Console.WriteLine(
-//                    String.Format(
-//                        "dataRecord.id = {0}   dataRecord.X = {1}   dataRecord.Y = {2}   dataRecord.Intensity = {3} \n",
-//                        dataRecord.Id, dataRecord.X, dataRecord.Y, dataRecord.Intensity));
-//            }
-//        }
+        private void buttonSelectDir_Click(object sender, EventArgs e)
+        {
+            var fbd = new FolderBrowserDialog();
+            fbd.ShowDialog();
 
-//        private void buttonSelectDir_Click(object sender, EventArgs e)
-//        {
-//            var fbd = new FolderBrowserDialog();
-//            fbd.ShowDialog();
-//
-//            if (fbd.SelectedPath == "")
-//                return;
-//
-//            Console.WriteLine("Looking for file *.tif, *.tiff");
-//            
-//            List<string> files = Directory
-//                .GetFiles(fbd.SelectedPath, "*.*")
-//                .Where(file => file.ToLower().EndsWith("tif") || file.ToLower().EndsWith("tiff"))
-//                .ToList();
-//
-//            Console.WriteLine("Files found: " + files.Count, "Message");
-//
-//            labelDirSelected.Text = fbd.SelectedPath;
-//        }
+            if (fbd.SelectedPath == "")
+                return;
+
+            Console.WriteLine("Looking for file *.csv");
+
+            labelSelectSourceDir.Text = fbd.SelectedPath;
+        }
+
+        private void buttonSaveOutputDir_Click(object sender, EventArgs e)
+        {
+            var fbd = new FolderBrowserDialog();
+            fbd.ShowDialog();
+
+            if (fbd.SelectedPath == "")
+                return;
+
+            labelSaveOutputDir.Text = fbd.SelectedPath;
+        }
     }
 }

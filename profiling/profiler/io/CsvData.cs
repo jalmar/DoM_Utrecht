@@ -25,7 +25,7 @@ namespace profiler.io
             }
         }
 
-        public static IEnumerable<float> ReadFluorphors(String fileName)
+        public static IEnumerable<float> ReadFluorophores(String fileName)
         {
             if(!File.Exists(fileName))
                 throw new FileNotFoundException(fileName);
