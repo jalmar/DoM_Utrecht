@@ -494,12 +494,12 @@ public class GPUBase
 		}
 		
 		// load program file
-//		if(gpu.loadProgramFromFile(args[0]))
-//		{
-//			System.err.println("New instance of GPUBase created successful for program " + args[0]);
-//		}
-//		
-//		System.err.println();
+		if(gpu.loadProgramFromFile(args[0]))
+		{
+			System.err.println("New instance of GPUBase created successful for program " + args[0]);
+		}
+		
+		System.err.println();
 		System.exit(0);
 	}
 }
