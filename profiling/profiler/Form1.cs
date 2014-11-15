@@ -164,6 +164,10 @@ namespace profiler
             };
 
 
+            Dictionary<int, float[]> transformaties = new Dictionary<int, float[]>();
+            transformaties.Add(1, new float[] { 0,dx,dy,0});
+            transformaties.Add(2, new float[] { dx, 0, 0, dy });
+
 
             ComputeBuffer<float> transformationMatrix = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadOnly, transformationMatrixArray);
 
@@ -263,7 +267,7 @@ namespace profiler
             };
             if (fdlg.ShowDialog() == DialogResult.OK)
             {
-                labelSelectSourceFile.Text = fdlg.FileName;
+                textBoxSelectSourceFile.Text = fdlg.FileName;
             }
         }
         

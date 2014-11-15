@@ -32,7 +32,6 @@
             this.DeviceCombox = new System.Windows.Forms.ComboBox();
             this.buttonCalculate = new System.Windows.Forms.Button();
             this.buttonSelectSourceFile = new System.Windows.Forms.Button();
-            this.labelSelectSourceFile = new System.Windows.Forms.Label();
             this.labelSelectPlatform = new System.Windows.Forms.Label();
             this.labelSelectDevice = new System.Windows.Forms.Label();
             this.buttonSelectSourceDir = new System.Windows.Forms.Button();
@@ -48,6 +47,7 @@
             this.buttonSaveOutputFile = new System.Windows.Forms.Button();
             this.buttonSaveOutputDir = new System.Windows.Forms.Button();
             this.groupBoxSingleFile = new System.Windows.Forms.GroupBox();
+            this.textBoxSelectSourceFile = new System.Windows.Forms.TextBox();
             this.labelSaveOutputFile = new System.Windows.Forms.Label();
             this.groupBoxMultipleFiles = new System.Windows.Forms.GroupBox();
             this.labelSaveOutputDir = new System.Windows.Forms.Label();
@@ -97,16 +97,6 @@
             this.buttonSelectSourceFile.Text = "Select source file";
             this.buttonSelectSourceFile.UseVisualStyleBackColor = true;
             this.buttonSelectSourceFile.Click += new System.EventHandler(this.buttonSelectFile_Click);
-            // 
-            // labelSelectSourceFile
-            // 
-            this.labelSelectSourceFile.Location = new System.Drawing.Point(110, 19);
-            this.labelSelectSourceFile.Name = "labelSelectSourceFile";
-            this.labelSelectSourceFile.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.labelSelectSourceFile.Size = new System.Drawing.Size(242, 18);
-            this.labelSelectSourceFile.TabIndex = 4;
-            this.labelSelectSourceFile.Text = "...";
-            this.labelSelectSourceFile.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // labelSelectPlatform
             // 
@@ -188,6 +178,11 @@
             // comboBoxTransform
             // 
             this.comboBoxTransform.FormattingEnabled = true;
+            this.comboBoxTransform.Items.AddRange(new object[] {
+            "transformation A = 1",
+            "transformation B = 2",
+            "transformation C = 3",
+            "transformation D = 4"});
             this.comboBoxTransform.Location = new System.Drawing.Point(219, 163);
             this.comboBoxTransform.Margin = new System.Windows.Forms.Padding(2);
             this.comboBoxTransform.Name = "comboBoxTransform";
@@ -244,10 +239,10 @@
             // 
             // groupBoxSingleFile
             // 
+            this.groupBoxSingleFile.Controls.Add(this.textBoxSelectSourceFile);
             this.groupBoxSingleFile.Controls.Add(this.labelSaveOutputFile);
             this.groupBoxSingleFile.Controls.Add(this.buttonSaveOutputFile);
             this.groupBoxSingleFile.Controls.Add(this.buttonSelectSourceFile);
-            this.groupBoxSingleFile.Controls.Add(this.labelSelectSourceFile);
             this.groupBoxSingleFile.Location = new System.Drawing.Point(40, 243);
             this.groupBoxSingleFile.Name = "groupBoxSingleFile";
             this.groupBoxSingleFile.Size = new System.Drawing.Size(358, 100);
@@ -255,13 +250,27 @@
             this.groupBoxSingleFile.TabStop = false;
             this.groupBoxSingleFile.Text = "Single file";
             // 
+            // textBoxSelectSourceFile
+            // 
+            this.textBoxSelectSourceFile.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
+            this.textBoxSelectSourceFile.Location = new System.Drawing.Point(110, 21);
+            this.textBoxSelectSourceFile.MaximumSize = new System.Drawing.Size(238, 23);
+            this.textBoxSelectSourceFile.Name = "textBoxSelectSourceFile";
+            this.textBoxSelectSourceFile.ReadOnly = true;
+            this.textBoxSelectSourceFile.Size = new System.Drawing.Size(235, 20);
+            this.textBoxSelectSourceFile.TabIndex = 20;
+            this.textBoxSelectSourceFile.Text = "...";
+            // 
             // labelSaveOutputFile
             // 
-            this.labelSaveOutputFile.Location = new System.Drawing.Point(111, 48);
+            this.labelSaveOutputFile.Location = new System.Drawing.Point(110, 48);
+            this.labelSaveOutputFile.MaximumSize = new System.Drawing.Size(238, 23);
             this.labelSaveOutputFile.Name = "labelSaveOutputFile";
-            this.labelSaveOutputFile.Size = new System.Drawing.Size(238, 19);
-            this.labelSaveOutputFile.TabIndex = 20;
+            this.labelSaveOutputFile.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.labelSaveOutputFile.Size = new System.Drawing.Size(238, 23);
+            this.labelSaveOutputFile.TabIndex = 4;
             this.labelSaveOutputFile.Text = "...";
+            this.labelSaveOutputFile.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // groupBoxMultipleFiles
             // 
@@ -282,6 +291,7 @@
             this.labelSaveOutputDir.AutoSize = true;
             this.labelSaveOutputDir.Location = new System.Drawing.Point(111, 57);
             this.labelSaveOutputDir.Name = "labelSaveOutputDir";
+            this.labelSaveOutputDir.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.labelSaveOutputDir.Size = new System.Drawing.Size(16, 13);
             this.labelSaveOutputDir.TabIndex = 22;
             this.labelSaveOutputDir.Text = "...";
@@ -291,6 +301,7 @@
             this.labelSelectSourceDir.AutoSize = true;
             this.labelSelectSourceDir.Location = new System.Drawing.Point(111, 28);
             this.labelSelectSourceDir.Name = "labelSelectSourceDir";
+            this.labelSelectSourceDir.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.labelSelectSourceDir.Size = new System.Drawing.Size(16, 13);
             this.labelSelectSourceDir.TabIndex = 21;
             this.labelSelectSourceDir.Text = "...";
@@ -300,6 +311,7 @@
             this.groupBoxRadioButtons.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.groupBoxRadioButtons.Controls.Add(this.radioButtonMultipleFiles);
             this.groupBoxRadioButtons.Controls.Add(this.radioButtonSingleFile);
+            this.groupBoxRadioButtons.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.groupBoxRadioButtons.Location = new System.Drawing.Point(12, 243);
             this.groupBoxRadioButtons.Name = "groupBoxRadioButtons";
             this.groupBoxRadioButtons.Size = new System.Drawing.Size(22, 219);
@@ -353,6 +365,7 @@
             this.Name = "Form1";
             this.Text = "Select platform/device";
             this.groupBoxSingleFile.ResumeLayout(false);
+            this.groupBoxSingleFile.PerformLayout();
             this.groupBoxMultipleFiles.ResumeLayout(false);
             this.groupBoxMultipleFiles.PerformLayout();
             this.groupBoxRadioButtons.ResumeLayout(false);
@@ -368,7 +381,6 @@
         private System.Windows.Forms.ComboBox DeviceCombox;
         private System.Windows.Forms.Button buttonCalculate;
         private System.Windows.Forms.Button buttonSelectSourceFile;
-        private System.Windows.Forms.Label labelSelectSourceFile;
         private System.Windows.Forms.Label labelSelectPlatform;
         private System.Windows.Forms.Label labelSelectDevice;
         private System.Windows.Forms.Button buttonSelectSourceDir;
@@ -391,5 +403,6 @@
         private System.Windows.Forms.Label labelSaveOutputDir;
         private System.Windows.Forms.Label labelSelectSourceDir;
         private System.Windows.Forms.Label labelSaveOutputFile;
+        private System.Windows.Forms.TextBox textBoxSelectSourceFile;
     }
 }
