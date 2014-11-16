@@ -1,60 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Cloo;
 using profiler.io;
+using profiler.utils;
 
 namespace profiler
 {
     public partial class Form1 : Form
     {
-        private ComputePlatform selectedComputePlatform = null;
-        private ComputeDevice selectedComputeDevice = null;
+        private ComputePlatform _selectedComputePlatform;
+        private ComputeDevice _selectedComputeDevice;
 
-        private int ImageDimensionX = 0;
-        private int ImageDimensionY = 0;
-        private int ImageDimensionZ = 0;
+        private int _imageDimensionX;
+        private int _imageDimensionY;
+        private int _imageDimensionZ;
 
-        private String sourceFilename = String.Empty;
-        private String saveFilename = String.Empty;
+        private String _sourceFilename = String.Empty;
+        private String _saveFilename = String.Empty;
 
-        private String sourceDir = String.Empty;
-        private String saveDir = String.Empty;
+        private String _sourceDir = String.Empty;
+        private String _saveDir = String.Empty;
 
         public Form1()
         {
+            _imageDimensionZ = 0;
             InitializeComponent();
 
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             TopMost = true;
 
-            // pick first platform
+            // Load platforms
             ReadOnlyCollection<ComputePlatform> platforms = ComputePlatform.Platforms;
 
             PlatformCombox.DataSource = platforms.ToList();
             PlatformCombox.DisplayMember = "Name";
-        }
 
-        private void LoadKernels(ComputeContext computeContext)
-        {
-            String kernelString;
-            using (var sr = new StreamReader("../FittingKernelLMA.cl"))
-                kernelString = sr.ReadToEnd();
-
-            var kernels = new ComputeProgram(computeContext, kernelString);
-
-            kernels.Build(computeContext.Devices, null, null, IntPtr.Zero);
-
-            ComputeProgramBuildStatus computeProgramBuildStatus = kernels.GetBuildStatus(computeContext.Devices[0]);
-            Console.WriteLine(computeProgramBuildStatus);
-
-            String buildLog = kernels.GetBuildLog(computeContext.Devices[0]);
-            Console.WriteLine(buildLog);
+            comboBoxTransform.DataSource = Enum.GetValues(typeof(Transformation));
         }
 
         private void PlatformCombox_SelectedIndexChanged(object sender, EventArgs e)
@@ -63,12 +47,12 @@ namespace profiler
             if (comboBox == null)
                 return;
 
-            selectedComputePlatform = (ComputePlatform) comboBox.SelectedItem;
+            _selectedComputePlatform = (ComputePlatform) comboBox.SelectedItem;
 
-            DeviceCombox.DataSource = selectedComputePlatform.Devices.ToList();
+            DeviceCombox.DataSource = _selectedComputePlatform.Devices.ToList();
             DeviceCombox.DisplayMember = "Name";
 
-            Console.WriteLine("Selected platform : " + selectedComputePlatform.Name);
+            Console.WriteLine("Selected platform : " + _selectedComputePlatform.Name);
         }
 
         private void DeviceCombox_SelectedIndexChanged(object sender, EventArgs e)
@@ -81,54 +65,35 @@ namespace profiler
 
             Console.WriteLine("Selected device : " + selectedDevice.Name);
 
-            selectedComputePlatform = (ComputePlatform)PlatformCombox.SelectedItem;
-            selectedComputeDevice = (ComputeDevice)DeviceCombox.SelectedItem;
-
-            var context = new ComputeContext(selectedComputeDevice.Type,
-                new ComputeContextPropertyList(selectedComputePlatform), null, IntPtr.Zero);
-
-            LoadKernels(context);
+            _selectedComputePlatform = (ComputePlatform)PlatformCombox.SelectedItem;
+            _selectedComputeDevice = (ComputeDevice)DeviceCombox.SelectedItem;
         }
 
         private void buttonCalculate_Click(object sender, EventArgs e)
         {
 //            bool writeToDisk = TiffData.WriteToDisk(new MemoryStream(), "c:\\Users\\Jens\\Documents\\test.tif", 128, 128, 0, 0);
 
-//            Tiff dataImage = TiffData.Read();
+            _imageDimensionX = Convert.ToInt32(TextBoxImageDimensionX.Text);
+            _imageDimensionY = Convert.ToInt32(TextBoxImageDimensionY.Text);
+            _imageDimensionZ = Convert.ToInt32(TextBoxImageDimensionZ.Text);
 
-            ImageDimensionX = Convert.ToInt32(TextBoxImageDimensionX.Text);
-            ImageDimensionY = Convert.ToInt32(TextBoxImageDimensionY.Text);
-            ImageDimensionZ = Convert.ToInt32(TextBoxImageDimensionZ.Text);
-
-            var context = new ComputeContext(selectedComputeDevice.Type, new ComputeContextPropertyList(selectedComputePlatform), null, IntPtr.Zero);
+            // construct context
+            var context = new ComputeContext(_selectedComputeDevice.Type, new ComputeContextPropertyList(_selectedComputePlatform), null, IntPtr.Zero);
             CalculateConvolution(context);
         }
 
         private void CalculateConvolution(ComputeContext computeContext)
         {           
             Console.WriteLine("Computing...");
-            Console.WriteLine("Reading data file...");
+            Console.WriteLine("Reading kernel...");
+            
+            String kernelString;
+            using (var sr = new StreamReader("..\\..\\..\\convolution.cl"))
+                kernelString = sr.ReadToEnd();
 
-            Console.WriteLine("Reading data file... done");
+            Console.WriteLine("Reading kernel... done");
 
-
-            String kernelString = null;
-//            using (var sr = new StreamReader("../FittingKernelLMA.cl"))
-//                kernelString = sr.ReadToEnd();
-
-            kernelString = @"
- __kernel void convolve_image_2d(
-  __read_only float* a,
-  __read_only float* b,
-  __read_only float* c, 
-  __read_only image2d_t d, 
-  __write_only image2d_t e )
- {
-    int2 coord = (int2)(get_global_id(0), get_global_id(1)); 
- }
- ";
-
-            //d[index] = a[index] * b[index] * c[index];
+            float[] selectedTransformation = Transformations.GetTransformation((Transformation)comboBoxTransform.SelectedItem, _imageDimensionX, _imageDimensionY, _imageDimensionZ);
 
             //create openCL program
             ComputeProgram computeProgram = new ComputeProgram(computeContext, kernelString);
@@ -141,38 +106,23 @@ namespace profiler
             String buildLog = computeProgram.GetBuildLog(computeContext.Devices[0]);
             Console.WriteLine(buildLog);
 
-            float[] readFluorphors = CsvData.ReadFluorophores("../../../data/fluorophores_radial_45_label_500_persistence_length_2000.csv").ToArray();
+            // TODO remove this line, is added nog testing
+            _sourceFilename = "..\\..\\..\\data\\fluorophores_radial_45_label_500_persistence_length_2000.csv";
+
+            float[] readFluorophores = CsvData.ReadFluorophores(_sourceFilename);
 
 //create buffers
     //csv
-            ComputeBuffer<float> mt_fluorophores_coordsXYZw = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, readFluorphors);
+            ComputeBuffer<float> mt_fluorophores_coordsXYZw = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, readFluorophores);
 
     //transformation matrix
 //            ComputeImageFormat transformationMatrixFormat = new ComputeImageFormat(ComputeImageChannelOrder.Intensity, ComputeImageChannelType.SignedInt16);
 //            ComputeImage2D transformationMatrix = new ComputeImage2D(computeContext, ComputeMemoryFlags.ReadWrite, transformationMatrixFormat, 128, 128, 0, IntPtr.Zero);
 
-            float dx = 0;
-            float dy = 0;
-            float dz = 0;
-
-            float[] transformationMatrixArray = new float[]
-            {
-                ImageDimensionX, 0,0,dx,
-                0,ImageDimensionY,0,dy,
-                0,0,ImageDimensionZ, dz,
-                0,0,0,1
-            };
-
-
-            Dictionary<int, float[]> transformaties = new Dictionary<int, float[]>();
-            transformaties.Add(1, new float[] { 0,dx,dy,0});
-            transformaties.Add(2, new float[] { dx, 0, 0, dy });
-
-
-            ComputeBuffer<float> transformationMatrix = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadOnly, transformationMatrixArray);
+            ComputeBuffer<float> transformationMatrix = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadOnly, selectedTransformation);
 
     //resulting image
-            ushort[] resultImageDimension = new ushort[ImageDimensionX * ImageDimensionY * ImageDimensionZ];
+            ushort[] resultImageDimension = new ushort[_imageDimensionX * _imageDimensionY * _imageDimensionZ];
             ComputeBuffer<ushort> resultImage = new ComputeBuffer<ushort>(computeContext, ComputeMemoryFlags.WriteOnly, resultImageDimension);
             
 //Create the kernel & set memory
@@ -193,8 +143,8 @@ namespace profiler
             computeCommandQueue.Execute(convolutionKernel, null, new long[1024], null, events);
 
             
-            convolutionKernel.SetValueArgument(2, ImageDimensionX);
-            convolutionKernel.SetValueArgument(3, ImageDimensionY);
+            convolutionKernel.SetValueArgument(2, _imageDimensionX);
+            convolutionKernel.SetValueArgument(3, _imageDimensionY);
             convolutionKernel.SetMemoryArgument(4, resultImage);
 
 
@@ -217,10 +167,9 @@ namespace profiler
 //            Console.WriteLine("Writing microtubule tubulins to file");
 //            CsvData.WriteToDisk("mt_tubulins.csv", null);
 
-            sourceFilename = "wf_radial_45_label_500_persistence_length.tif";
-            saveFilename = "wf_radial_45_label_500_persistence_length.tif";
+            _saveFilename = "wf_radial_45_label_500_persistence_length.tif";
 
-            TiffData.WriteToDisk(data, sourceFilename, 128, 128);
+            TiffData.WriteToDisk(data, _sourceFilename, 128, 128);
             
 //            computeCommandQueue.Write(CLnumAtom, false, 0, 0, IntPtr.Zero, null);
 //            computeCommandQueue.Execute(kernelAtomInc, new long[] { }, new long[1] { 1 }, new long[1] { 1 }, null);
@@ -255,6 +204,7 @@ namespace profiler
             Console.WriteLine("Computing... done");
         }
 
+
         private void buttonSelectFile_Click(object sender, EventArgs e)
         {
             var fdlg = new OpenFileDialog
@@ -268,6 +218,9 @@ namespace profiler
             if (fdlg.ShowDialog() == DialogResult.OK)
             {
                 textBoxSelectSourceFile.Text = fdlg.FileName;
+                _sourceFilename = fdlg.FileName;
+
+                Console.WriteLine("Source file set to: \n\t" + _sourceFilename);
             }
         }
         
@@ -275,12 +228,24 @@ namespace profiler
         {
             groupBoxSingleFile.Enabled = true;
             groupBoxMultipleFiles.Enabled = false;
+
+            RadioButton radioButton = (RadioButton) sender;
+            if (radioButton.Checked)
+            {
+                Console.WriteLine("Single file mode selected");
+            }
         }
 
         private void radioButtonMultipleFiles_CheckedChanged(object sender, EventArgs e)
         {
             groupBoxSingleFile.Enabled = false;
             groupBoxMultipleFiles.Enabled = true;
+            
+            RadioButton radioButton = (RadioButton) sender;
+            if (radioButton.Checked)
+            {
+                Console.WriteLine("Multiple files mode selected");
+            }
         }
 
         private void buttonSaveOutputFile_Click(object sender, EventArgs e)
@@ -296,31 +261,34 @@ namespace profiler
             if (fdlg.ShowDialog() == DialogResult.OK)
             {
                 labelSaveOutputFile.Text = fdlg.FileName;
+                _saveFilename = fdlg.FileName;
+
+                Console.WriteLine("Save file set to: \n\t" + _saveFilename);
             }
         }
 
         private void buttonSelectDir_Click(object sender, EventArgs e)
         {
             var fbd = new FolderBrowserDialog();
-            fbd.ShowDialog();
+            if (fbd.ShowDialog() == DialogResult.OK)
+            {
+                labelSelectSourceDir.Text = fbd.SelectedPath;
+                _sourceDir = fbd.SelectedPath;
 
-            if (fbd.SelectedPath == "")
-                return;
-
-            Console.WriteLine("Looking for file *.csv");
-
-            labelSelectSourceDir.Text = fbd.SelectedPath;
+                Console.WriteLine("Source dir set to: \n\t" + _sourceDir);
+            }
         }
 
         private void buttonSaveOutputDir_Click(object sender, EventArgs e)
         {
             var fbd = new FolderBrowserDialog();
-            fbd.ShowDialog();
+            if (fbd.ShowDialog() == DialogResult.OK)
+            {
+                labelSaveOutputDir.Text = fbd.SelectedPath;
+                _saveDir = fbd.SelectedPath;
 
-            if (fbd.SelectedPath == "")
-                return;
-
-            labelSaveOutputDir.Text = fbd.SelectedPath;
+                Console.WriteLine("Save dir set to: \n\t" + _saveDir);
+            }
         }
     }
 }

@@ -171,9 +171,9 @@
             this.labelTransformation.Location = new System.Drawing.Point(217, 146);
             this.labelTransformation.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelTransformation.Name = "labelTransformation";
-            this.labelTransformation.Size = new System.Drawing.Size(77, 13);
+            this.labelTransformation.Size = new System.Drawing.Size(100, 13);
             this.labelTransformation.TabIndex = 13;
-            this.labelTransformation.Text = "Transformation";
+            this.labelTransformation.Text = "Transformation type";
             // 
             // comboBoxTransform
             // 

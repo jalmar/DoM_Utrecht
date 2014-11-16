@@ -25,17 +25,29 @@ namespace profiler.io
             }
         }
 
-        public static IEnumerable<float> ReadFluorophores(String fileName)
+        public static float[] ReadFluorophores(String fileName)
         {
             if(!File.Exists(fileName))
                 throw new FileNotFoundException(fileName);
 
-            using (var streamReader = new StreamReader(fileName))
-            {
-                var reader = new CsvReader(streamReader);
+            CsvConfiguration configuration = new CsvConfiguration();
 
-                return reader.GetRecords<float>();
+            configuration.HasHeaderRecord = false;
+            configuration.TrimFields = true;
+
+            List<float> fluorophores = new List<float>();
+
+            using (CsvReader reader = new CsvReader(new StreamReader(fileName), configuration))
+            {
+                IEnumerable<DataRecord> dataRecords = reader.GetRecords<DataRecord>();
+
+                foreach (DataRecord dataRecord in dataRecords.ToList())
+                {
+                    fluorophores.AddRange(dataRecord.ToFloat());
+                }
             }
+
+            return fluorophores.ToArray();
         }
     }
 
@@ -47,5 +59,10 @@ namespace profiler.io
         public String Y { get; set; }
         public String Z { get; set; }
         public String w { get; set; }
+
+        public float[] ToFloat()
+        {
+            return new[] {float.Parse(X), float.Parse(Y), float.Parse(Z), float.Parse(w)};
+        }
     }
 }
