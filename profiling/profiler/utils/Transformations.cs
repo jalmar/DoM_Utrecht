@@ -9,18 +9,14 @@ namespace profiler.utils
     }
     class Transformations
     {
-        public static float[] GetTransformation(Transformation transformation, int imageDimensionX, int imageDimensionY, int imageDimensionZ)
+        public static float[] GetTransformation(Transformation transformation, int imageDimensionX, int imageDimensionY, int imageDimensionZ, float dx, float dy, float dz)
         {
-            float dx = 0;
-            float dy = 0;
-            float dz = 0;
-
             if (transformation == Transformation.Rigid)
                 throw new NotImplementedException();
 
             if (transformation == Transformation.Affine)
             {
-                return new float[]
+                return new[]
                 {
                     imageDimensionX, 0,0, dx,
                     0,imageDimensionY,0, dy,

@@ -2,6 +2,8 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Cloo;
 using profiler.io;
@@ -39,6 +41,13 @@ namespace profiler
             PlatformCombox.DisplayMember = "Name";
 
             comboBoxTransform.DataSource = Enum.GetValues(typeof(Transformation));
+
+            //TODO need to be removed, nor for testing {
+            _sourceFilename = "E:\\Projects\\GitHub\\DoM_Utrecht-GPU\\profiling\\data\\fluorophores_radial_45_label_500_persistence_length_2000.csv";
+            textBoxSelectSourceFile.Text = _sourceFilename;
+            _saveFilename = "E:\\Projects\\GitHub\\DoM_Utrecht-GPU\\profiling\\data\\test.tif";
+            labelSaveOutputFile.Text = _saveFilename;
+            //TODO }
         }
 
         private void PlatformCombox_SelectedIndexChanged(object sender, EventArgs e)
@@ -71,19 +80,30 @@ namespace profiler
 
         private void buttonCalculate_Click(object sender, EventArgs e)
         {
-//            bool writeToDisk = TiffData.WriteToDisk(new MemoryStream(), "c:\\Users\\Jens\\Documents\\test.tif", 128, 128, 0, 0);
+            SetOutputDimensions();
+
+            // construct context
+            var context = new ComputeContext(_selectedComputeDevice.Type, new ComputeContextPropertyList(_selectedComputePlatform), null, IntPtr.Zero);
+
+            CalculateConvolution(context);
+        }
+
+        private void SetOutputDimensions()
+        {
+            if (TextBoxImageDimensionX.Text == String.Empty || TextBoxImageDimensionY.Text == String.Empty ||
+                TextBoxImageDimensionZ.Text == String.Empty) throw new ArgumentOutOfRangeException(String.Format("Dimensions need to be set"));
 
             _imageDimensionX = Convert.ToInt32(TextBoxImageDimensionX.Text);
             _imageDimensionY = Convert.ToInt32(TextBoxImageDimensionY.Text);
             _imageDimensionZ = Convert.ToInt32(TextBoxImageDimensionZ.Text);
-
-            // construct context
-            var context = new ComputeContext(_selectedComputeDevice.Type, new ComputeContextPropertyList(_selectedComputePlatform), null, IntPtr.Zero);
-            CalculateConvolution(context);
         }
 
         private void CalculateConvolution(ComputeContext computeContext)
-        {           
+        {
+            float dx = float.Parse(textBoxShiftX.Text);
+            float dy = float.Parse(textBoxShiftY.Text);
+            float dz = float.Parse(textBoxShiftZ.Text);
+
             Console.WriteLine("Computing...");
             Console.WriteLine("Reading kernel...");
             
@@ -93,66 +113,63 @@ namespace profiler
 
             Console.WriteLine("Reading kernel... done");
 
-            float[] selectedTransformation = Transformations.GetTransformation((Transformation)comboBoxTransform.SelectedItem, _imageDimensionX, _imageDimensionY, _imageDimensionZ);
+            float[] selectedTransformation = Transformations.GetTransformation((Transformation)comboBoxTransform.SelectedItem, _imageDimensionX, _imageDimensionY, _imageDimensionZ, dx, dy, dz);
 
             //create openCL program
             ComputeProgram computeProgram = new ComputeProgram(computeContext, kernelString);
-
+            
             computeProgram.Build(computeContext.Devices, null, null, IntPtr.Zero);
 
-            ComputeProgramBuildStatus computeProgramBuildStatus = computeProgram.GetBuildStatus(computeContext.Devices[0]);
+            ComputeProgramBuildStatus computeProgramBuildStatus = computeProgram.GetBuildStatus(_selectedComputeDevice);
             Console.WriteLine(computeProgramBuildStatus);
 
-            String buildLog = computeProgram.GetBuildLog(computeContext.Devices[0]);
+            String buildLog = computeProgram.GetBuildLog(_selectedComputeDevice);
             Console.WriteLine(buildLog);
 
-            // TODO remove this line, is added nog testing
-            _sourceFilename = "..\\..\\..\\data\\fluorophores_radial_45_label_500_persistence_length_2000.csv";
-
             float[] readFluorophores = CsvData.ReadFluorophores(_sourceFilename);
-
+            
 //create buffers
-    //csv
-            ComputeBuffer<float> mt_fluorophores_coordsXYZw = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, readFluorophores);
+    //csv (X,Y,Z,w)
+            ComputeBuffer<float> mtFluorophoresCoords = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, readFluorophores);
 
     //transformation matrix
-//            ComputeImageFormat transformationMatrixFormat = new ComputeImageFormat(ComputeImageChannelOrder.Intensity, ComputeImageChannelType.SignedInt16);
-//            ComputeImage2D transformationMatrix = new ComputeImage2D(computeContext, ComputeMemoryFlags.ReadWrite, transformationMatrixFormat, 128, 128, 0, IntPtr.Zero);
-
             ComputeBuffer<float> transformationMatrix = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadOnly, selectedTransformation);
 
     //resulting image
             ushort[] resultImageDimension = new ushort[_imageDimensionX * _imageDimensionY * _imageDimensionZ];
             ComputeBuffer<ushort> resultImage = new ComputeBuffer<ushort>(computeContext, ComputeMemoryFlags.WriteOnly, resultImageDimension);
             
-//Create the kernel & set memory
-            ComputeKernel convolutionKernel = computeProgram.CreateKernel("convolve_fluophors");
-            
-            //Kernel arguments
-            convolutionKernel.SetMemoryArgument(0, mt_fluorophores_coordsXYZw);
-            convolutionKernel.SetMemoryArgument(1, transformationMatrix);
+//Create the kernel
+            ComputeKernel transformFluorophoresKernel = computeProgram.CreateKernel("transform_fluorophores");
+            ComputeKernel convolveFluorophoresKernel = computeProgram.CreateKernel("convolve_fluorophores");
+
+//Kernel arguments
+
 
             //Create the command queue
-            ComputeCommandQueue computeCommandQueue = new ComputeCommandQueue(computeContext, computeContext.Devices[0], ComputeCommandQueueFlags.None);
+            ComputeCommandQueue computeCommandQueue = new ComputeCommandQueue(computeContext, _selectedComputeDevice, ComputeCommandQueueFlags.None);
             
             //Call transform fluo
 
             ComputeEventList events = new ComputeEventList();
 
             computeCommandQueue.Write(resultImage, false, 0, 0, IntPtr.Zero, events);
-            computeCommandQueue.Execute(convolutionKernel, null, new long[1024], null, events);
+            computeCommandQueue.Execute(transformFluorophoresKernel, null, new long[_selectedComputeDevice.GlobalMemorySize], new long[_selectedComputeDevice.LocalMemorySize], events);
 
+            transformFluorophoresKernel.SetValueArgument(2, _imageDimensionX);
+            transformFluorophoresKernel.SetValueArgument(3, _imageDimensionY);
+            transformFluorophoresKernel.SetMemoryArgument(4, resultImage);
+
+            convolveFluorophoresKernel.SetMemoryArgument(0, mtFluorophoresCoords);
+            convolveFluorophoresKernel.SetMemoryArgument(1, transformationMatrix);
+
+//            MemoryStream resultData = new MemoryStream();
             
-            convolutionKernel.SetValueArgument(2, _imageDimensionX);
-            convolutionKernel.SetValueArgument(3, _imageDimensionY);
-            convolutionKernel.SetMemoryArgument(4, resultImage);
+            ushort[] resultImageData = new ushort[_imageDimensionX * _imageDimensionY * _imageDimensionZ];
 
-
-            MemoryStream data = new MemoryStream();
-
-//            GCHandle arrCHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
-//            computeCommandQueue.ReadFromImage(resultImage, IntPtr.Zero, true, events);
-//            computeCommandQueue.Finish();
+//            GCHandle arrCHandle = GCHandle.Alloc(resultData, GCHandleType.Pinned);
+            computeCommandQueue.ReadFromBuffer(resultImage, ref resultImageData, true, events);
+            computeCommandQueue.Finish();
 
 //            arrCHandle.Free();
 
@@ -169,7 +186,7 @@ namespace profiler
 
             _saveFilename = "wf_radial_45_label_500_persistence_length.tif";
 
-            TiffData.WriteToDisk(data, _sourceFilename, 128, 128);
+//            TiffData.WriteToDisk(data, _sourceFilename, 128, 128);
             
 //            computeCommandQueue.Write(CLnumAtom, false, 0, 0, IntPtr.Zero, null);
 //            computeCommandQueue.Execute(kernelAtomInc, new long[] { }, new long[1] { 1 }, new long[1] { 1 }, null);
@@ -288,6 +305,19 @@ namespace profiler
                 _saveDir = fbd.SelectedPath;
 
                 Console.WriteLine("Save dir set to: \n\t" + _saveDir);
+            }
+        }
+
+        private void comboBoxTransform_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Console.WriteLine("Transformation type set to: \n\t" + ((ComboBox)sender).SelectedItem);
+        }
+
+        private void buttonListDeviceInfo_Click(object sender, EventArgs e)
+        {
+            foreach (var prop in _selectedComputeDevice.GetType().GetProperties())
+            {
+                Console.WriteLine(prop.Name + " = " + prop.GetValue(_selectedComputeDevice, null));
             }
         }
     }
