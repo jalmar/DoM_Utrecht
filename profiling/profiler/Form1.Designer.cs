@@ -140,17 +140,17 @@
             // 
             // TextBoxImageDimensionX
             // 
-            this.TextBoxImageDimensionX.Location = new System.Drawing.Point(26, 41);
+            this.TextBoxImageDimensionX.Location = new System.Drawing.Point(26, 38);
             this.TextBoxImageDimensionX.Margin = new System.Windows.Forms.Padding(2);
             this.TextBoxImageDimensionX.Name = "TextBoxImageDimensionX";
-            this.TextBoxImageDimensionX.Size = new System.Drawing.Size(68, 20);
+            this.TextBoxImageDimensionX.Size = new System.Drawing.Size(70, 20);
             this.TextBoxImageDimensionX.TabIndex = 8;
             this.TextBoxImageDimensionX.Text = "128";
             // 
             // labelImagedimension
             // 
             this.labelImagedimension.AutoSize = true;
-            this.labelImagedimension.Location = new System.Drawing.Point(5, 23);
+            this.labelImagedimension.Location = new System.Drawing.Point(5, 20);
             this.labelImagedimension.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelImagedimension.Name = "labelImagedimension";
             this.labelImagedimension.Size = new System.Drawing.Size(121, 13);
@@ -160,7 +160,7 @@
             // labelDimX
             // 
             this.labelDimX.AutoSize = true;
-            this.labelDimX.Location = new System.Drawing.Point(11, 43);
+            this.labelDimX.Location = new System.Drawing.Point(11, 40);
             this.labelDimX.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelDimX.Name = "labelDimX";
             this.labelDimX.Size = new System.Drawing.Size(12, 13);
@@ -170,7 +170,7 @@
             // labelDimY
             // 
             this.labelDimY.AutoSize = true;
-            this.labelDimY.Location = new System.Drawing.Point(11, 64);
+            this.labelDimY.Location = new System.Drawing.Point(11, 61);
             this.labelDimY.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelDimY.Name = "labelDimY";
             this.labelDimY.Size = new System.Drawing.Size(12, 13);
@@ -180,7 +180,7 @@
             // labelTransformationType
             // 
             this.labelTransformationType.AutoSize = true;
-            this.labelTransformationType.Location = new System.Drawing.Point(270, 23);
+            this.labelTransformationType.Location = new System.Drawing.Point(270, 20);
             this.labelTransformationType.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelTransformationType.Name = "labelTransformationType";
             this.labelTransformationType.Size = new System.Drawing.Size(100, 13);
@@ -195,7 +195,7 @@
             "transformation B = 2",
             "transformation C = 3",
             "transformation D = 4"});
-            this.comboBoxTransform.Location = new System.Drawing.Point(273, 41);
+            this.comboBoxTransform.Location = new System.Drawing.Point(273, 38);
             this.comboBoxTransform.Margin = new System.Windows.Forms.Padding(2);
             this.comboBoxTransform.Name = "comboBoxTransform";
             this.comboBoxTransform.Size = new System.Drawing.Size(100, 21);
@@ -204,27 +204,27 @@
             // 
             // TextBoxImageDimensionY
             // 
-            this.TextBoxImageDimensionY.Location = new System.Drawing.Point(26, 62);
+            this.TextBoxImageDimensionY.Location = new System.Drawing.Point(26, 59);
             this.TextBoxImageDimensionY.Margin = new System.Windows.Forms.Padding(2);
             this.TextBoxImageDimensionY.Name = "TextBoxImageDimensionY";
-            this.TextBoxImageDimensionY.Size = new System.Drawing.Size(68, 20);
+            this.TextBoxImageDimensionY.Size = new System.Drawing.Size(70, 20);
             this.TextBoxImageDimensionY.TabIndex = 15;
             this.TextBoxImageDimensionY.Text = "128";
             // 
             // TextBoxImageDimensionZ
             // 
-            this.TextBoxImageDimensionZ.Location = new System.Drawing.Point(26, 83);
+            this.TextBoxImageDimensionZ.Location = new System.Drawing.Point(26, 80);
             this.TextBoxImageDimensionZ.Margin = new System.Windows.Forms.Padding(2);
             this.TextBoxImageDimensionZ.Name = "TextBoxImageDimensionZ";
-            this.TextBoxImageDimensionZ.Size = new System.Drawing.Size(68, 20);
+            this.TextBoxImageDimensionZ.Size = new System.Drawing.Size(70, 20);
             this.TextBoxImageDimensionZ.TabIndex = 16;
-            this.TextBoxImageDimensionZ.Text = "128";
+            this.TextBoxImageDimensionZ.Text = "1";
             this.TextBoxImageDimensionZ.Visible = false;
             // 
             // labelDimZ
             // 
             this.labelDimZ.AutoSize = true;
-            this.labelDimZ.Location = new System.Drawing.Point(11, 88);
+            this.labelDimZ.Location = new System.Drawing.Point(11, 85);
             this.labelDimZ.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelDimZ.Name = "labelDimZ";
             this.labelDimZ.Size = new System.Drawing.Size(12, 13);
@@ -358,7 +358,7 @@
             // labelPixelSize
             // 
             this.labelPixelSize.AutoSize = true;
-            this.labelPixelSize.Location = new System.Drawing.Point(165, 23);
+            this.labelPixelSize.Location = new System.Drawing.Point(165, 20);
             this.labelPixelSize.Name = "labelPixelSize";
             this.labelPixelSize.Size = new System.Drawing.Size(50, 13);
             this.labelPixelSize.TabIndex = 24;
@@ -366,11 +366,11 @@
             // 
             // textBoxPixelSize
             // 
-            this.textBoxPixelSize.Location = new System.Drawing.Point(181, 41);
+            this.textBoxPixelSize.Location = new System.Drawing.Point(181, 38);
             this.textBoxPixelSize.Name = "textBoxPixelSize";
-            this.textBoxPixelSize.Size = new System.Drawing.Size(68, 20);
+            this.textBoxPixelSize.Size = new System.Drawing.Size(70, 20);
             this.textBoxPixelSize.TabIndex = 25;
-            this.textBoxPixelSize.Text = "1";
+            this.textBoxPixelSize.Text = "1.0";
             // 
             // groupBoxParameters
             // 
@@ -403,18 +403,18 @@
             this.textBoxShiftX.Location = new System.Drawing.Point(181, 84);
             this.textBoxShiftX.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxShiftX.Name = "textBoxShiftX";
-            this.textBoxShiftX.Size = new System.Drawing.Size(68, 20);
+            this.textBoxShiftX.Size = new System.Drawing.Size(70, 20);
             this.textBoxShiftX.TabIndex = 29;
-            this.textBoxShiftX.Text = "0";
+            this.textBoxShiftX.Text = "0.0";
             // 
             // textBoxShiftY
             // 
             this.textBoxShiftY.Location = new System.Drawing.Point(181, 105);
             this.textBoxShiftY.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxShiftY.Name = "textBoxShiftY";
-            this.textBoxShiftY.Size = new System.Drawing.Size(68, 20);
+            this.textBoxShiftY.Size = new System.Drawing.Size(70, 20);
             this.textBoxShiftY.TabIndex = 30;
-            this.textBoxShiftY.Text = "0";
+            this.textBoxShiftY.Text = "0.0";
             // 
             // label3
             // 
@@ -464,15 +464,17 @@
             this.labelShiftZ.Size = new System.Drawing.Size(12, 13);
             this.labelShiftZ.TabIndex = 31;
             this.labelShiftZ.Text = "z";
+            this.labelShiftZ.Visible = false;
             // 
             // textBoxShiftZ
             // 
             this.textBoxShiftZ.Location = new System.Drawing.Point(193, 264);
             this.textBoxShiftZ.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxShiftZ.Name = "textBoxShiftZ";
-            this.textBoxShiftZ.Size = new System.Drawing.Size(68, 20);
+            this.textBoxShiftZ.Size = new System.Drawing.Size(70, 20);
             this.textBoxShiftZ.TabIndex = 32;
-            this.textBoxShiftZ.Text = "0";
+            this.textBoxShiftZ.Text = "0.0";
+            this.textBoxShiftZ.Visible = false;
             // 
             // Form1
             // 

@@ -35,6 +35,7 @@ namespace profiler.io
             configuration.HasHeaderRecord = false;
             configuration.TrimFields = true;
 
+//            List<float[]> fluorophores = new List<float[]>();
             List<float> fluorophores = new List<float>();
 
             using (CsvReader reader = new CsvReader(new StreamReader(fileName), configuration))

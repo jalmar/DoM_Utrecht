@@ -2,8 +2,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Cloo;
 using profiler.io;
@@ -43,10 +41,11 @@ namespace profiler
             comboBoxTransform.DataSource = Enum.GetValues(typeof(Transformation));
 
             //TODO need to be removed, nor for testing {
-            _sourceFilename = "E:\\Projects\\GitHub\\DoM_Utrecht-GPU\\profiling\\data\\fluorophores_radial_45_label_500_persistence_length_2000.csv";
+            _sourceFilename = "E:\\Projects\\GitHub\\DoM_Utrecht-GPU\\profiling\\data\\fluorophores_test.csv";
             textBoxSelectSourceFile.Text = _sourceFilename;
             _saveFilename = "E:\\Projects\\GitHub\\DoM_Utrecht-GPU\\profiling\\data\\test.tif";
             labelSaveOutputFile.Text = _saveFilename;
+            comboBoxTransform.SelectedItem = Transformation.Affine;
             //TODO }
         }
 
@@ -104,6 +103,8 @@ namespace profiler
             float dy = float.Parse(textBoxShiftY.Text);
             float dz = float.Parse(textBoxShiftZ.Text);
 
+            int pixelCount = _imageDimensionX*_imageDimensionY*_imageDimensionZ;
+
             Console.WriteLine("Computing...");
             Console.WriteLine("Reading kernel...");
             
@@ -121,59 +122,105 @@ namespace profiler
             computeProgram.Build(computeContext.Devices, null, null, IntPtr.Zero);
 
             ComputeProgramBuildStatus computeProgramBuildStatus = computeProgram.GetBuildStatus(_selectedComputeDevice);
-            Console.WriteLine(computeProgramBuildStatus);
+            Console.WriteLine("computeProgramBuildStatus\n\t"+computeProgramBuildStatus);
 
             String buildLog = computeProgram.GetBuildLog(_selectedComputeDevice);
-            Console.WriteLine(buildLog);
-
-            float[] readFluorophores = CsvData.ReadFluorophores(_sourceFilename);
+            Console.WriteLine("buildLog");
+            if (buildLog.Equals("\n"))
+                Console.WriteLine("\tbuildLog is empty...");
+            else
+                Console.WriteLine("\t" + buildLog);
             
-//create buffers
-    //csv (X,Y,Z,w)
-            ComputeBuffer<float> mtFluorophoresCoords = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, readFluorophores);
 
-    //transformation matrix
+            float[] fluorophores = CsvData.ReadFluorophores(_sourceFilename);
+
+/////////////////////////////////////////////
+// Create a Command Queue & Event List
+/////////////////////////////////////////////
+            ComputeCommandQueue computeCommandQueue = new ComputeCommandQueue(computeContext, _selectedComputeDevice, ComputeCommandQueueFlags.None);
+
+            ComputeEventList transformFluorophoresEvents = new ComputeEventList(); 
+            ComputeEventList convolveFluorophoresEvents = new ComputeEventList(); 
+            
+
+////////////////////////////////////////////////////////////////
+// Create Buffers Transform
+////////////////////////////////////////////////////////////////
+            ComputeBuffer<float> fluorophoresCoords = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadWrite, fluorophores.LongLength);
+    
             ComputeBuffer<float> transformationMatrix = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadOnly, selectedTransformation);
 
-    //resulting image
+
+/////////////////////////////////////////////
+// Create the transformFluorophoresKernel
+/////////////////////////////////////////////
+            ComputeKernel transformFluorophoresKernel = computeProgram.CreateKernel("transform_fluorophores");
+            
+/////////////////////////////////////////////
+// Set the transformFluorophoresKernel arguments
+/////////////////////////////////////////////
+            transformFluorophoresKernel.SetMemoryArgument(0, fluorophoresCoords);
+            transformFluorophoresKernel.SetMemoryArgument(1, transformationMatrix);
+
+/////////////////////////////////////////////
+// Configure the work-item structure
+/////////////////////////////////////////////
+            long[] globalWorkOffsetTransformFluorophoresKernel = null;
+            long[] globalWorkSizeTransformFluorophoresKernel = new long[fluorophores.Length];
+            long[] localWorkSizeTransformFluorophoresKernel = new long[globalWorkSizeTransformFluorophoresKernel.Length / _selectedComputeDevice.MaxComputeUnits];
+
+////////////////////////////////////////////////////////
+// Enqueue the transformFluorophoresKernel for execution
+////////////////////////////////////////////////////////
+            computeCommandQueue.Execute(transformFluorophoresKernel, globalWorkOffsetTransformFluorophoresKernel, globalWorkSizeTransformFluorophoresKernel, localWorkSizeTransformFluorophoresKernel, transformFluorophoresEvents);
+            
+            // fluorophoresCoords are now transformed (done in place)
+            
+            
+////////////////////////////////////////////////////////////////
+// Create Buffers Convolve Fluorophores
+////////////////////////////////////////////////////////////////
             ushort[] resultImageDimension = new ushort[_imageDimensionX * _imageDimensionY * _imageDimensionZ];
             ComputeBuffer<ushort> resultImage = new ComputeBuffer<ushort>(computeContext, ComputeMemoryFlags.WriteOnly, resultImageDimension);
-            
-//Create the kernel
-            ComputeKernel transformFluorophoresKernel = computeProgram.CreateKernel("transform_fluorophores");
+
+
+/////////////////////////////////////////////
+// Create the transformFluorophoresKernel
+/////////////////////////////////////////////
             ComputeKernel convolveFluorophoresKernel = computeProgram.CreateKernel("convolve_fluorophores");
 
-//Kernel arguments
 
+/////////////////////////////////////////////
+// Set the convolveFluorophoresKernel arguments
+/////////////////////////////////////////////
+            convolveFluorophoresKernel.SetMemoryArgument(0, resultImage);
+            convolveFluorophoresKernel.SetLocalArgument(1, _imageDimensionX);
+            convolveFluorophoresKernel.SetLocalArgument(2, _imageDimensionY);
+            convolveFluorophoresKernel.SetMemoryArgument(3, fluorophoresCoords);
+            convolveFluorophoresKernel.SetLocalArgument(4, fluorophoresCoords.Count);
+            convolveFluorophoresKernel.SetValueArgument(5, fluorophores.Length);
 
-            //Create the command queue
-            ComputeCommandQueue computeCommandQueue = new ComputeCommandQueue(computeContext, _selectedComputeDevice, ComputeCommandQueueFlags.None);
+/////////////////////////////////////////////
+// Configure the work-item structure
+/////////////////////////////////////////////
+            long[] globalWorkOffsetTransformConvolveFluorophoresKernel = null;
+            long[] globalWorkSizeTransformConvolveFluorophoresKernel = new long[pixelCount];
+            long[] localWorkSizeTransformConvolveFluorophoresKernel = new long[globalWorkSizeTransformFluorophoresKernel.Length / _selectedComputeDevice.MaxComputeUnits];
             
-            //Call transform fluo
-
-            ComputeEventList events = new ComputeEventList();
-
-            computeCommandQueue.Write(resultImage, false, 0, 0, IntPtr.Zero, events);
-            computeCommandQueue.Execute(transformFluorophoresKernel, null, new long[_selectedComputeDevice.GlobalMemorySize], new long[_selectedComputeDevice.LocalMemorySize], events);
-
-            transformFluorophoresKernel.SetValueArgument(2, _imageDimensionX);
-            transformFluorophoresKernel.SetValueArgument(3, _imageDimensionY);
-            transformFluorophoresKernel.SetMemoryArgument(4, resultImage);
-
-            convolveFluorophoresKernel.SetMemoryArgument(0, mtFluorophoresCoords);
-            convolveFluorophoresKernel.SetMemoryArgument(1, transformationMatrix);
-
-//            MemoryStream resultData = new MemoryStream();
-            
-            ushort[] resultImageData = new ushort[_imageDimensionX * _imageDimensionY * _imageDimensionZ];
+////////////////////////////////////////////////////////
+// Enqueue the convolveFluorophoresKernel for execution
+////////////////////////////////////////////////////////
+            computeCommandQueue.Execute(convolveFluorophoresKernel, globalWorkOffsetTransformConvolveFluorophoresKernel, globalWorkSizeTransformConvolveFluorophoresKernel, localWorkSizeTransformConvolveFluorophoresKernel, convolveFluorophoresEvents);
+           
+            ushort[] resultImageData = new ushort[pixelCount];
 
 //            GCHandle arrCHandle = GCHandle.Alloc(resultData, GCHandleType.Pinned);
-            computeCommandQueue.ReadFromBuffer(resultImage, ref resultImageData, true, events);
+            computeCommandQueue.ReadFromBuffer(resultImage, ref resultImageData, true, transformFluorophoresEvents);
             computeCommandQueue.Finish();
 
 //            arrCHandle.Free();
 
-//Save to disk
+//Save Image data to disk
             
 //            Console.WriteLine("Writing microtubule fluorophores to file");
 //            CsvData.WriteToDisk("mt_fluorophores.csv", null);
