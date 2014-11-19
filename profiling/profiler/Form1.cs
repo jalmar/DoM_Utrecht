@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Cloo;
 using profiler.io;
@@ -41,9 +43,9 @@ namespace profiler
             comboBoxTransform.DataSource = Enum.GetValues(typeof(Transformation));
 
             //TODO need to be removed, nor for testing {
-            _sourceFilename = "E:\\Projects\\GitHub\\DoM_Utrecht-GPU\\profiling\\data\\fluorophores_test.csv";
+            _sourceFilename = "..\\..\\..\\data\\fluorophores_test3.csv";
             textBoxSelectSourceFile.Text = _sourceFilename;
-            _saveFilename = "E:\\Projects\\GitHub\\DoM_Utrecht-GPU\\profiling\\data\\test.tif";
+            _saveFilename = "..\\..\\..\\data\\fluorophores_test.tif";
             labelSaveOutputFile.Text = _saveFilename;
             comboBoxTransform.SelectedItem = Transformation.Affine;
             //TODO }
@@ -99,6 +101,9 @@ namespace profiler
 
         private void CalculateConvolution(ComputeContext computeContext)
         {
+//            Stopwatch stopwatch = new Stopwatch();
+//            stopwatch.Start();
+
             float dx = float.Parse(textBoxShiftX.Text);
             float dy = float.Parse(textBoxShiftY.Text);
             float dz = float.Parse(textBoxShiftZ.Text);
@@ -146,10 +151,9 @@ namespace profiler
 ////////////////////////////////////////////////////////////////
 // Create Buffers Transform
 ////////////////////////////////////////////////////////////////
-            ComputeBuffer<float> fluorophoresCoords = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadWrite, fluorophores.LongLength);
-    
-            ComputeBuffer<float> transformationMatrix = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadOnly, selectedTransformation);
+            ComputeBuffer<float> fluorophoresCoords = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadWrite, 4*sizeof(float)* fluorophores.LongLength);
 
+            ComputeBuffer<float> transformationMatrix = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadOnly, sizeof(float) * selectedTransformation.LongLength);
 
 /////////////////////////////////////////////
 // Create the transformFluorophoresKernel
@@ -166,21 +170,43 @@ namespace profiler
 // Configure the work-item structure
 /////////////////////////////////////////////
             long[] globalWorkOffsetTransformFluorophoresKernel = null;
-            long[] globalWorkSizeTransformFluorophoresKernel = new long[fluorophores.Length];
-            long[] localWorkSizeTransformFluorophoresKernel = new long[globalWorkSizeTransformFluorophoresKernel.Length / _selectedComputeDevice.MaxComputeUnits];
+            long[] globalWorkSizeTransformFluorophoresKernel = new long[1024];
+//            long[] globalWorkSizeTransformFluorophoresKernel = new long[] { fluorophores.Length };
+            long[] localWorkSizeTransformFluorophoresKernel = null;//new long[] {16};
+//            long[] localWorkSizeTransformFluorophoresKernel = new long[globalWorkSizeTransformFluorophoresKernel.Length / _selectedComputeDevice.MaxComputeUnits];
 
 ////////////////////////////////////////////////////////
 // Enqueue the transformFluorophoresKernel for execution
 ////////////////////////////////////////////////////////
             computeCommandQueue.Execute(transformFluorophoresKernel, globalWorkOffsetTransformFluorophoresKernel, globalWorkSizeTransformFluorophoresKernel, localWorkSizeTransformFluorophoresKernel, transformFluorophoresEvents);
+
+            float[] arrC = new float[fluorophores.Length * _selectedComputeDevice.MaxComputeUnits];
+//            GCHandle arrCHandle = GCHandle.Alloc(arrC, GCHandleType.Pinned);
+//            computeCommandQueue.rea
+//            computeCommandQueue.Read(fluorophoresCoords, true, 0, fluorophores.LongLength, arrCHandle.AddrOfPinnedObject(), transformFluorophoresEvents);
+            computeCommandQueue.ReadFromBuffer(fluorophoresCoords, ref arrC, true, transformFluorophoresEvents);
+//            arrCHandle.Free();
+            computeCommandQueue.Finish();
             
+            for (int i = 0; i < arrC.Length; i++)
+            {
+//                if (arrC[i] > 0 && arrC[i] > 0)
+                    Console.WriteLine(arrC[i]);
+            }
+
+//            TiffData.WriteToDisk(arrC, _saveFilename, _imageDimensionX, _imageDimensionY);
+//            stopwatch.Stop();
+//            Console.WriteLine("Transform fluophores duration:\n\t" + stopwatch.Elapsed);
+//            stopwatch.Reset();
+//            stopwatch.Start();
             // fluorophoresCoords are now transformed (done in place)
             
+
             
 ////////////////////////////////////////////////////////////////
 // Create Buffers Convolve Fluorophores
 ////////////////////////////////////////////////////////////////
-            ushort[] resultImageDimension = new ushort[_imageDimensionX * _imageDimensionY * _imageDimensionZ];
+            ushort[] resultImageDimension = new ushort[pixelCount];
             ComputeBuffer<ushort> resultImage = new ComputeBuffer<ushort>(computeContext, ComputeMemoryFlags.WriteOnly, resultImageDimension);
 
 
@@ -205,7 +231,8 @@ namespace profiler
 /////////////////////////////////////////////
             long[] globalWorkOffsetTransformConvolveFluorophoresKernel = null;
             long[] globalWorkSizeTransformConvolveFluorophoresKernel = new long[pixelCount];
-            long[] localWorkSizeTransformConvolveFluorophoresKernel = new long[globalWorkSizeTransformFluorophoresKernel.Length / _selectedComputeDevice.MaxComputeUnits];
+            long[] localWorkSizeTransformConvolveFluorophoresKernel = new long[0];
+//            long[] localWorkSizeTransformConvolveFluorophoresKernel = new long[globalWorkSizeTransformFluorophoresKernel.Length / _selectedComputeDevice.MaxComputeUnits];
             
 ////////////////////////////////////////////////////////
 // Enqueue the convolveFluorophoresKernel for execution
@@ -215,7 +242,7 @@ namespace profiler
             ushort[] resultImageData = new ushort[pixelCount];
 
 //            GCHandle arrCHandle = GCHandle.Alloc(resultData, GCHandleType.Pinned);
-            computeCommandQueue.ReadFromBuffer(resultImage, ref resultImageData, true, transformFluorophoresEvents);
+            computeCommandQueue.ReadFromBuffer(resultImage, ref resultImageData, true, convolveFluorophoresEvents);
             computeCommandQueue.Finish();
 
 //            arrCHandle.Free();
@@ -234,7 +261,6 @@ namespace profiler
             _saveFilename = "wf_radial_45_label_500_persistence_length.tif";
 
 //            TiffData.WriteToDisk(data, _sourceFilename, 128, 128);
-            
 //            computeCommandQueue.Write(CLnumAtom, false, 0, 0, IntPtr.Zero, null);
 //            computeCommandQueue.Execute(kernelAtomInc, new long[] { }, new long[1] { 1 }, new long[1] { 1 }, null);
             
@@ -265,6 +291,8 @@ namespace profiler
 //            Console.WriteLine("Atomics: " + CLnumAtom.ToString()[0]);
             Console.WriteLine("****************************************");
 
+//            stopwatch.Stop();
+//            Console.WriteLine("Convolve fluophores duration:\n\t" + stopwatch.Elapsed);
             Console.WriteLine("Computing... done");
         }
 
