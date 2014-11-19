@@ -76,29 +76,26 @@
             // PlatformCombox
             // 
             this.PlatformCombox.FormattingEnabled = true;
-            this.PlatformCombox.Location = new System.Drawing.Point(18, 63);
-            this.PlatformCombox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.PlatformCombox.Location = new System.Drawing.Point(12, 41);
             this.PlatformCombox.Name = "PlatformCombox";
-            this.PlatformCombox.Size = new System.Drawing.Size(482, 28);
+            this.PlatformCombox.Size = new System.Drawing.Size(323, 21);
             this.PlatformCombox.TabIndex = 0;
             this.PlatformCombox.SelectedIndexChanged += new System.EventHandler(this.PlatformCombox_SelectedIndexChanged);
             // 
             // DeviceCombox
             // 
             this.DeviceCombox.FormattingEnabled = true;
-            this.DeviceCombox.Location = new System.Drawing.Point(18, 152);
-            this.DeviceCombox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.DeviceCombox.Location = new System.Drawing.Point(12, 99);
             this.DeviceCombox.Name = "DeviceCombox";
-            this.DeviceCombox.Size = new System.Drawing.Size(482, 28);
+            this.DeviceCombox.Size = new System.Drawing.Size(323, 21);
             this.DeviceCombox.TabIndex = 1;
             this.DeviceCombox.SelectedIndexChanged += new System.EventHandler(this.DeviceCombox_SelectedIndexChanged);
             // 
             // buttonCalculate
             // 
-            this.buttonCalculate.Location = new System.Drawing.Point(447, 783);
-            this.buttonCalculate.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.buttonCalculate.Location = new System.Drawing.Point(298, 509);
             this.buttonCalculate.Name = "buttonCalculate";
-            this.buttonCalculate.Size = new System.Drawing.Size(150, 69);
+            this.buttonCalculate.Size = new System.Drawing.Size(100, 45);
             this.buttonCalculate.TabIndex = 2;
             this.buttonCalculate.Text = "Calculate";
             this.buttonCalculate.UseVisualStyleBackColor = true;
@@ -106,10 +103,9 @@
             // 
             // buttonSelectSourceFile
             // 
-            this.buttonSelectSourceFile.Location = new System.Drawing.Point(9, 29);
-            this.buttonSelectSourceFile.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.buttonSelectSourceFile.Location = new System.Drawing.Point(6, 19);
             this.buttonSelectSourceFile.Name = "buttonSelectSourceFile";
-            this.buttonSelectSourceFile.Size = new System.Drawing.Size(147, 35);
+            this.buttonSelectSourceFile.Size = new System.Drawing.Size(98, 23);
             this.buttonSelectSourceFile.TabIndex = 3;
             this.buttonSelectSourceFile.Text = "Select source file";
             this.buttonSelectSourceFile.UseVisualStyleBackColor = true;
@@ -118,29 +114,26 @@
             // labelSelectPlatform
             // 
             this.labelSelectPlatform.AutoSize = true;
-            this.labelSelectPlatform.Location = new System.Drawing.Point(14, 31);
-            this.labelSelectPlatform.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelSelectPlatform.Location = new System.Drawing.Point(9, 20);
             this.labelSelectPlatform.Name = "labelSelectPlatform";
-            this.labelSelectPlatform.Size = new System.Drawing.Size(117, 20);
+            this.labelSelectPlatform.Size = new System.Drawing.Size(78, 13);
             this.labelSelectPlatform.TabIndex = 5;
             this.labelSelectPlatform.Text = "Select Platform";
             // 
             // labelSelectDevice
             // 
             this.labelSelectDevice.AutoSize = true;
-            this.labelSelectDevice.Location = new System.Drawing.Point(14, 115);
-            this.labelSelectDevice.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelSelectDevice.Location = new System.Drawing.Point(9, 75);
             this.labelSelectDevice.Name = "labelSelectDevice";
-            this.labelSelectDevice.Size = new System.Drawing.Size(106, 20);
+            this.labelSelectDevice.Size = new System.Drawing.Size(74, 13);
             this.labelSelectDevice.TabIndex = 6;
             this.labelSelectDevice.Text = "Select Device";
             // 
             // buttonSelectSourceDir
             // 
-            this.buttonSelectSourceDir.Location = new System.Drawing.Point(9, 29);
-            this.buttonSelectSourceDir.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.buttonSelectSourceDir.Location = new System.Drawing.Point(6, 19);
             this.buttonSelectSourceDir.Name = "buttonSelectSourceDir";
-            this.buttonSelectSourceDir.Size = new System.Drawing.Size(147, 35);
+            this.buttonSelectSourceDir.Size = new System.Drawing.Size(98, 23);
             this.buttonSelectSourceDir.TabIndex = 7;
             this.buttonSelectSourceDir.Text = "Select source dir";
             this.buttonSelectSourceDir.UseVisualStyleBackColor = true;
@@ -148,45 +141,50 @@
             // 
             // TextBoxImageDimensionX
             // 
-            this.TextBoxImageDimensionX.Location = new System.Drawing.Point(39, 58);
+            this.TextBoxImageDimensionX.Location = new System.Drawing.Point(26, 38);
+            this.TextBoxImageDimensionX.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.TextBoxImageDimensionX.Name = "TextBoxImageDimensionX";
-            this.TextBoxImageDimensionX.Size = new System.Drawing.Size(103, 26);
+            this.TextBoxImageDimensionX.Size = new System.Drawing.Size(70, 20);
             this.TextBoxImageDimensionX.TabIndex = 8;
             this.TextBoxImageDimensionX.Text = "128";
             // 
             // labelImagedimension
             // 
             this.labelImagedimension.AutoSize = true;
-            this.labelImagedimension.Location = new System.Drawing.Point(8, 31);
+            this.labelImagedimension.Location = new System.Drawing.Point(5, 20);
+            this.labelImagedimension.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelImagedimension.Name = "labelImagedimension";
-            this.labelImagedimension.Size = new System.Drawing.Size(183, 20);
+            this.labelImagedimension.Size = new System.Drawing.Size(121, 13);
             this.labelImagedimension.TabIndex = 10;
             this.labelImagedimension.Text = "Image dimension (pixels)";
             // 
             // labelDimX
             // 
             this.labelDimX.AutoSize = true;
-            this.labelDimX.Location = new System.Drawing.Point(16, 62);
+            this.labelDimX.Location = new System.Drawing.Point(11, 40);
+            this.labelDimX.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelDimX.Name = "labelDimX";
-            this.labelDimX.Size = new System.Drawing.Size(16, 20);
+            this.labelDimX.Size = new System.Drawing.Size(12, 13);
             this.labelDimX.TabIndex = 11;
             this.labelDimX.Text = "x";
             // 
             // labelDimY
             // 
             this.labelDimY.AutoSize = true;
-            this.labelDimY.Location = new System.Drawing.Point(16, 94);
+            this.labelDimY.Location = new System.Drawing.Point(11, 61);
+            this.labelDimY.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelDimY.Name = "labelDimY";
-            this.labelDimY.Size = new System.Drawing.Size(16, 20);
+            this.labelDimY.Size = new System.Drawing.Size(12, 13);
             this.labelDimY.TabIndex = 12;
             this.labelDimY.Text = "y";
             // 
             // labelTransformationType
             // 
             this.labelTransformationType.AutoSize = true;
-            this.labelTransformationType.Location = new System.Drawing.Point(405, 31);
+            this.labelTransformationType.Location = new System.Drawing.Point(270, 20);
+            this.labelTransformationType.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelTransformationType.Name = "labelTransformationType";
-            this.labelTransformationType.Size = new System.Drawing.Size(150, 20);
+            this.labelTransformationType.Size = new System.Drawing.Size(100, 13);
             this.labelTransformationType.TabIndex = 13;
             this.labelTransformationType.Text = "Transformation type";
             // 
@@ -198,25 +196,28 @@
             "transformation B = 2",
             "transformation C = 3",
             "transformation D = 4"});
-            this.comboBoxTransform.Location = new System.Drawing.Point(410, 58);
+            this.comboBoxTransform.Location = new System.Drawing.Point(273, 38);
+            this.comboBoxTransform.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.comboBoxTransform.Name = "comboBoxTransform";
-            this.comboBoxTransform.Size = new System.Drawing.Size(148, 28);
+            this.comboBoxTransform.Size = new System.Drawing.Size(100, 21);
             this.comboBoxTransform.TabIndex = 14;
             this.comboBoxTransform.SelectedIndexChanged += new System.EventHandler(this.comboBoxTransform_SelectedIndexChanged);
             // 
             // TextBoxImageDimensionY
             // 
-            this.TextBoxImageDimensionY.Location = new System.Drawing.Point(39, 91);
+            this.TextBoxImageDimensionY.Location = new System.Drawing.Point(26, 59);
+            this.TextBoxImageDimensionY.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.TextBoxImageDimensionY.Name = "TextBoxImageDimensionY";
-            this.TextBoxImageDimensionY.Size = new System.Drawing.Size(103, 26);
+            this.TextBoxImageDimensionY.Size = new System.Drawing.Size(70, 20);
             this.TextBoxImageDimensionY.TabIndex = 15;
             this.TextBoxImageDimensionY.Text = "128";
             // 
             // TextBoxImageDimensionZ
             // 
-            this.TextBoxImageDimensionZ.Location = new System.Drawing.Point(39, 123);
+            this.TextBoxImageDimensionZ.Location = new System.Drawing.Point(26, 80);
+            this.TextBoxImageDimensionZ.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.TextBoxImageDimensionZ.Name = "TextBoxImageDimensionZ";
-            this.TextBoxImageDimensionZ.Size = new System.Drawing.Size(103, 26);
+            this.TextBoxImageDimensionZ.Size = new System.Drawing.Size(70, 20);
             this.TextBoxImageDimensionZ.TabIndex = 16;
             this.TextBoxImageDimensionZ.Text = "1";
             this.TextBoxImageDimensionZ.Visible = false;
@@ -224,19 +225,19 @@
             // labelDimZ
             // 
             this.labelDimZ.AutoSize = true;
-            this.labelDimZ.Location = new System.Drawing.Point(16, 131);
+            this.labelDimZ.Location = new System.Drawing.Point(11, 85);
+            this.labelDimZ.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelDimZ.Name = "labelDimZ";
-            this.labelDimZ.Size = new System.Drawing.Size(17, 20);
+            this.labelDimZ.Size = new System.Drawing.Size(12, 13);
             this.labelDimZ.TabIndex = 17;
             this.labelDimZ.Text = "z";
             this.labelDimZ.Visible = false;
             // 
             // buttonSaveOutputFile
             // 
-            this.buttonSaveOutputFile.Location = new System.Drawing.Point(9, 74);
-            this.buttonSaveOutputFile.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.buttonSaveOutputFile.Location = new System.Drawing.Point(6, 48);
             this.buttonSaveOutputFile.Name = "buttonSaveOutputFile";
-            this.buttonSaveOutputFile.Size = new System.Drawing.Size(147, 35);
+            this.buttonSaveOutputFile.Size = new System.Drawing.Size(98, 23);
             this.buttonSaveOutputFile.TabIndex = 19;
             this.buttonSaveOutputFile.Text = "Save output file";
             this.buttonSaveOutputFile.UseVisualStyleBackColor = true;
@@ -244,10 +245,9 @@
             // 
             // buttonSaveOutputDir
             // 
-            this.buttonSaveOutputDir.Location = new System.Drawing.Point(9, 74);
-            this.buttonSaveOutputDir.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.buttonSaveOutputDir.Location = new System.Drawing.Point(6, 48);
             this.buttonSaveOutputDir.Name = "buttonSaveOutputDir";
-            this.buttonSaveOutputDir.Size = new System.Drawing.Size(147, 35);
+            this.buttonSaveOutputDir.Size = new System.Drawing.Size(98, 23);
             this.buttonSaveOutputDir.TabIndex = 20;
             this.buttonSaveOutputDir.Text = "Save output dir";
             this.buttonSaveOutputDir.UseVisualStyleBackColor = true;
@@ -259,11 +259,9 @@
             this.groupBoxSingleFile.Controls.Add(this.labelSaveOutputFile);
             this.groupBoxSingleFile.Controls.Add(this.buttonSaveOutputFile);
             this.groupBoxSingleFile.Controls.Add(this.buttonSelectSourceFile);
-            this.groupBoxSingleFile.Location = new System.Drawing.Point(60, 457);
-            this.groupBoxSingleFile.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBoxSingleFile.Location = new System.Drawing.Point(40, 297);
             this.groupBoxSingleFile.Name = "groupBoxSingleFile";
-            this.groupBoxSingleFile.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBoxSingleFile.Size = new System.Drawing.Size(537, 154);
+            this.groupBoxSingleFile.Size = new System.Drawing.Size(358, 100);
             this.groupBoxSingleFile.TabIndex = 21;
             this.groupBoxSingleFile.TabStop = false;
             this.groupBoxSingleFile.Text = "Single file";
@@ -271,23 +269,21 @@
             // textBoxSelectSourceFile
             // 
             this.textBoxSelectSourceFile.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
-            this.textBoxSelectSourceFile.Location = new System.Drawing.Point(165, 32);
-            this.textBoxSelectSourceFile.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.textBoxSelectSourceFile.MaximumSize = new System.Drawing.Size(355, 23);
+            this.textBoxSelectSourceFile.Location = new System.Drawing.Point(110, 21);
+            this.textBoxSelectSourceFile.MaximumSize = new System.Drawing.Size(238, 23);
             this.textBoxSelectSourceFile.Name = "textBoxSelectSourceFile";
             this.textBoxSelectSourceFile.ReadOnly = true;
-            this.textBoxSelectSourceFile.Size = new System.Drawing.Size(350, 26);
+            this.textBoxSelectSourceFile.Size = new System.Drawing.Size(235, 20);
             this.textBoxSelectSourceFile.TabIndex = 20;
             this.textBoxSelectSourceFile.Text = "...";
             // 
             // labelSaveOutputFile
             // 
-            this.labelSaveOutputFile.Location = new System.Drawing.Point(165, 74);
-            this.labelSaveOutputFile.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelSaveOutputFile.MaximumSize = new System.Drawing.Size(357, 35);
+            this.labelSaveOutputFile.Location = new System.Drawing.Point(110, 48);
+            this.labelSaveOutputFile.MaximumSize = new System.Drawing.Size(238, 23);
             this.labelSaveOutputFile.Name = "labelSaveOutputFile";
             this.labelSaveOutputFile.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.labelSaveOutputFile.Size = new System.Drawing.Size(357, 35);
+            this.labelSaveOutputFile.Size = new System.Drawing.Size(238, 23);
             this.labelSaveOutputFile.TabIndex = 4;
             this.labelSaveOutputFile.Text = "...";
             this.labelSaveOutputFile.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -299,11 +295,9 @@
             this.groupBoxMultipleFiles.Controls.Add(this.buttonSelectSourceDir);
             this.groupBoxMultipleFiles.Controls.Add(this.buttonSaveOutputDir);
             this.groupBoxMultipleFiles.Enabled = false;
-            this.groupBoxMultipleFiles.Location = new System.Drawing.Point(60, 620);
-            this.groupBoxMultipleFiles.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBoxMultipleFiles.Location = new System.Drawing.Point(40, 403);
             this.groupBoxMultipleFiles.Name = "groupBoxMultipleFiles";
-            this.groupBoxMultipleFiles.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBoxMultipleFiles.Size = new System.Drawing.Size(537, 154);
+            this.groupBoxMultipleFiles.Size = new System.Drawing.Size(358, 100);
             this.groupBoxMultipleFiles.TabIndex = 22;
             this.groupBoxMultipleFiles.TabStop = false;
             this.groupBoxMultipleFiles.Text = "Multiple files";
@@ -311,22 +305,20 @@
             // labelSaveOutputDir
             // 
             this.labelSaveOutputDir.AutoSize = true;
-            this.labelSaveOutputDir.Location = new System.Drawing.Point(166, 88);
-            this.labelSaveOutputDir.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelSaveOutputDir.Location = new System.Drawing.Point(111, 57);
             this.labelSaveOutputDir.Name = "labelSaveOutputDir";
             this.labelSaveOutputDir.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.labelSaveOutputDir.Size = new System.Drawing.Size(21, 20);
+            this.labelSaveOutputDir.Size = new System.Drawing.Size(16, 13);
             this.labelSaveOutputDir.TabIndex = 22;
             this.labelSaveOutputDir.Text = "...";
             // 
             // labelSelectSourceDir
             // 
             this.labelSelectSourceDir.AutoSize = true;
-            this.labelSelectSourceDir.Location = new System.Drawing.Point(166, 43);
-            this.labelSelectSourceDir.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelSelectSourceDir.Location = new System.Drawing.Point(111, 28);
             this.labelSelectSourceDir.Name = "labelSelectSourceDir";
             this.labelSelectSourceDir.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.labelSelectSourceDir.Size = new System.Drawing.Size(21, 20);
+            this.labelSelectSourceDir.Size = new System.Drawing.Size(16, 13);
             this.labelSelectSourceDir.TabIndex = 21;
             this.labelSelectSourceDir.Text = "...";
             // 
@@ -336,21 +328,18 @@
             this.groupBoxRadioButtons.Controls.Add(this.radioButtonMultipleFiles);
             this.groupBoxRadioButtons.Controls.Add(this.radioButtonSingleFile);
             this.groupBoxRadioButtons.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.groupBoxRadioButtons.Location = new System.Drawing.Point(18, 457);
-            this.groupBoxRadioButtons.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBoxRadioButtons.Location = new System.Drawing.Point(12, 297);
             this.groupBoxRadioButtons.Name = "groupBoxRadioButtons";
-            this.groupBoxRadioButtons.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBoxRadioButtons.Size = new System.Drawing.Size(33, 317);
+            this.groupBoxRadioButtons.Size = new System.Drawing.Size(22, 206);
             this.groupBoxRadioButtons.TabIndex = 23;
             this.groupBoxRadioButtons.TabStop = false;
             // 
             // radioButtonMultipleFiles
             // 
             this.radioButtonMultipleFiles.AutoSize = true;
-            this.radioButtonMultipleFiles.Location = new System.Drawing.Point(6, 238);
-            this.radioButtonMultipleFiles.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.radioButtonMultipleFiles.Location = new System.Drawing.Point(4, 155);
             this.radioButtonMultipleFiles.Name = "radioButtonMultipleFiles";
-            this.radioButtonMultipleFiles.Size = new System.Drawing.Size(21, 20);
+            this.radioButtonMultipleFiles.Size = new System.Drawing.Size(14, 13);
             this.radioButtonMultipleFiles.TabIndex = 1;
             this.radioButtonMultipleFiles.UseVisualStyleBackColor = true;
             this.radioButtonMultipleFiles.CheckedChanged += new System.EventHandler(this.radioButtonMultipleFiles_CheckedChanged);
@@ -359,10 +348,9 @@
             // 
             this.radioButtonSingleFile.AutoSize = true;
             this.radioButtonSingleFile.Checked = true;
-            this.radioButtonSingleFile.Location = new System.Drawing.Point(6, 74);
-            this.radioButtonSingleFile.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.radioButtonSingleFile.Location = new System.Drawing.Point(4, 48);
             this.radioButtonSingleFile.Name = "radioButtonSingleFile";
-            this.radioButtonSingleFile.Size = new System.Drawing.Size(21, 20);
+            this.radioButtonSingleFile.Size = new System.Drawing.Size(14, 13);
             this.radioButtonSingleFile.TabIndex = 0;
             this.radioButtonSingleFile.TabStop = true;
             this.radioButtonSingleFile.UseVisualStyleBackColor = true;
@@ -371,19 +359,17 @@
             // labelPixelSize
             // 
             this.labelPixelSize.AutoSize = true;
-            this.labelPixelSize.Location = new System.Drawing.Point(248, 31);
-            this.labelPixelSize.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelPixelSize.Location = new System.Drawing.Point(165, 20);
             this.labelPixelSize.Name = "labelPixelSize";
-            this.labelPixelSize.Size = new System.Drawing.Size(73, 20);
+            this.labelPixelSize.Size = new System.Drawing.Size(50, 13);
             this.labelPixelSize.TabIndex = 24;
             this.labelPixelSize.Text = "Pixel size";
             // 
             // textBoxPixelSize
             // 
-            this.textBoxPixelSize.Location = new System.Drawing.Point(272, 58);
-            this.textBoxPixelSize.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textBoxPixelSize.Location = new System.Drawing.Point(181, 38);
             this.textBoxPixelSize.Name = "textBoxPixelSize";
-            this.textBoxPixelSize.Size = new System.Drawing.Size(103, 26);
+            this.textBoxPixelSize.Size = new System.Drawing.Size(70, 20);
             this.textBoxPixelSize.TabIndex = 25;
             this.textBoxPixelSize.Text = "1.0";
             // 
@@ -406,11 +392,9 @@
             this.groupBoxParameters.Controls.Add(this.labelDimZ);
             this.groupBoxParameters.Controls.Add(this.TextBoxImageDimensionY);
             this.groupBoxParameters.Controls.Add(this.TextBoxImageDimensionZ);
-            this.groupBoxParameters.Location = new System.Drawing.Point(18, 212);
-            this.groupBoxParameters.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBoxParameters.Location = new System.Drawing.Point(12, 138);
             this.groupBoxParameters.Name = "groupBoxParameters";
-            this.groupBoxParameters.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBoxParameters.Size = new System.Drawing.Size(579, 235);
+            this.groupBoxParameters.Size = new System.Drawing.Size(386, 153);
             this.groupBoxParameters.TabIndex = 26;
             this.groupBoxParameters.TabStop = false;
             this.groupBoxParameters.Text = "Parameters";
@@ -418,63 +402,66 @@
             // labelShiftZ
             // 
             this.labelShiftZ.AutoSize = true;
-            this.labelShiftZ.Location = new System.Drawing.Point(248, 197);
+            this.labelShiftZ.Location = new System.Drawing.Point(165, 128);
+            this.labelShiftZ.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelShiftZ.Name = "labelShiftZ";
-            this.labelShiftZ.Size = new System.Drawing.Size(17, 20);
+            this.labelShiftZ.Size = new System.Drawing.Size(12, 13);
             this.labelShiftZ.TabIndex = 31;
             this.labelShiftZ.Text = "z";
             this.labelShiftZ.Visible = false;
             // 
             // textBoxShiftX
             // 
-            this.textBoxShiftX.Location = new System.Drawing.Point(272, 129);
+            this.textBoxShiftX.Location = new System.Drawing.Point(181, 84);
+            this.textBoxShiftX.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.textBoxShiftX.Name = "textBoxShiftX";
-            this.textBoxShiftX.Size = new System.Drawing.Size(103, 26);
+            this.textBoxShiftX.Size = new System.Drawing.Size(70, 20);
             this.textBoxShiftX.TabIndex = 29;
-            this.textBoxShiftX.Text = "0.0";
+            this.textBoxShiftX.Text = "0.5";
             // 
             // textBoxShiftY
             // 
-            this.textBoxShiftY.Location = new System.Drawing.Point(272, 162);
+            this.textBoxShiftY.Location = new System.Drawing.Point(181, 105);
+            this.textBoxShiftY.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.textBoxShiftY.Name = "textBoxShiftY";
-            this.textBoxShiftY.Size = new System.Drawing.Size(103, 26);
+            this.textBoxShiftY.Size = new System.Drawing.Size(70, 20);
             this.textBoxShiftY.TabIndex = 30;
-            this.textBoxShiftY.Text = "0.0";
+            this.textBoxShiftY.Text = "0.5";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(248, 132);
+            this.label3.Location = new System.Drawing.Point(165, 86);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(16, 20);
+            this.label3.Size = new System.Drawing.Size(12, 13);
             this.label3.TabIndex = 27;
             this.label3.Text = "x";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(248, 165);
+            this.label4.Location = new System.Drawing.Point(165, 107);
+            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(16, 20);
+            this.label4.Size = new System.Drawing.Size(12, 13);
             this.label4.TabIndex = 28;
             this.label4.Text = "y";
             // 
             // labelShift
             // 
             this.labelShift.AutoSize = true;
-            this.labelShift.Location = new System.Drawing.Point(248, 106);
-            this.labelShift.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelShift.Location = new System.Drawing.Point(165, 69);
             this.labelShift.Name = "labelShift";
-            this.labelShift.Size = new System.Drawing.Size(42, 20);
+            this.labelShift.Size = new System.Drawing.Size(28, 13);
             this.labelShift.TabIndex = 26;
             this.labelShift.Text = "Shift";
             // 
             // buttonListDeviceInfo
             // 
-            this.buttonListDeviceInfo.Location = new System.Drawing.Point(512, 152);
-            this.buttonListDeviceInfo.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.buttonListDeviceInfo.Location = new System.Drawing.Point(341, 99);
             this.buttonListDeviceInfo.Name = "buttonListDeviceInfo";
-            this.buttonListDeviceInfo.Size = new System.Drawing.Size(86, 32);
+            this.buttonListDeviceInfo.Size = new System.Drawing.Size(57, 21);
             this.buttonListDeviceInfo.TabIndex = 27;
             this.buttonListDeviceInfo.Text = "List info";
             this.buttonListDeviceInfo.UseVisualStyleBackColor = true;
@@ -482,19 +469,20 @@
             // 
             // textBoxShiftZ
             // 
-            this.textBoxShiftZ.Location = new System.Drawing.Point(290, 406);
+            this.textBoxShiftZ.Location = new System.Drawing.Point(193, 264);
+            this.textBoxShiftZ.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.textBoxShiftZ.Name = "textBoxShiftZ";
-            this.textBoxShiftZ.Size = new System.Drawing.Size(103, 26);
+            this.textBoxShiftZ.Size = new System.Drawing.Size(70, 20);
             this.textBoxShiftZ.TabIndex = 32;
             this.textBoxShiftZ.Text = "0.0";
             this.textBoxShiftZ.Visible = false;
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(638, 864);
+            this.ClientSize = new System.Drawing.Size(425, 562);
             this.Controls.Add(this.textBoxShiftZ);
             this.Controls.Add(this.buttonListDeviceInfo);
             this.Controls.Add(this.groupBoxParameters);
@@ -509,7 +497,6 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Location = new System.Drawing.Point(1300, 0);
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form1";

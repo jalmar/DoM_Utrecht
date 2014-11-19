@@ -398,3 +398,7 @@ FakesAssemblies/
 
 profiling/profiling.sdf
 profiling/profiling.sdf
+*.sdf
+profiling/profiling.sdf
+profiling/profiling.v12.suo
+*.suo
