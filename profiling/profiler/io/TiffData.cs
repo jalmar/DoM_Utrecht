@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
-using System.IO;
-using System.Linq;
+using System.Reflection;
 using BitMiracle.LibTiff.Classic;
 using Orientation = BitMiracle.LibTiff.Classic.Orientation;
 
@@ -10,25 +9,53 @@ namespace profiler.io
 {
     class TiffData
     {
-//        public static bool WriteToDisk(Tiff data, String fileName)
-//        {
-//            return false;
-//        }
-        public static bool WriteToDisk(ushort[][] data, String fileName, int imageWidth, int imageHeight, int samplesPerPixel = 1, Compression compression = Compression.NONE, int bitsPerSample = 16)
+        public static void WriteToDisk(ushort[][] data, String fileName, int imageWidth, int imageHeight, int samplesPerPixel = 1, Compression compression = Compression.NONE, int bitsPerSample = 16)
         {
             if (data == null)
                 throw new Exception("no data provided");
 
-            using (Tiff imageData = Tiff.Open(fileName, "w"))
+            using (Tiff imagesData = Tiff.Open(fileName, "w"))
             {
+                for (uint page = 0; page < data.Length; page++)
+                {
+                    imagesData.SetField(TiffTag.IMAGEWIDTH, imageWidth.ToString(CultureInfo.InvariantCulture));
+                    imagesData.SetField(TiffTag.IMAGELENGTH, imageHeight.ToString(CultureInfo.InvariantCulture));
+                    imagesData.SetField(TiffTag.COMPRESSION, compression);
+                    imagesData.SetField(TiffTag.BITSPERSAMPLE, bitsPerSample.ToString(CultureInfo.InvariantCulture));
+//                imageData.SetField(TiffTag.SAMPLESPERPIXEL, samplesPerPixel);
+                    imagesData.SetField(TiffTag.XRESOLUTION, 1);
+                    imagesData.SetField(TiffTag.YRESOLUTION, 1);
+                    imagesData.SetField(TiffTag.DATETIME, DateTime.Now);
+//                imageData.SetField(TiffTag.ROWSPERSTRIP, imageHeight.ToString(CultureInfo.InvariantCulture));
+                    imagesData.SetField(TiffTag.PLANARCONFIG, PlanarConfig.CONTIG);
+                    imagesData.SetField(TiffTag.PHOTOMETRIC, Photometric.MINISBLACK);
+                    imagesData.SetField(TiffTag.FILLORDER, FillOrder.MSB2LSB);
+                    imagesData.SetField(TiffTag.ORIENTATION, Orientation.TOPLEFT);
+                    imagesData.SetField(TiffTag.RESOLUTIONUNIT, ResUnit.CENTIMETER);
+
+                    imagesData.SetField(TiffTag.ARTIST, "ProjectStorm");
+                    imagesData.SetField(TiffTag.IMAGEDESCRIPTION, "Test data constructed by openCL kernel of project storm");
+
+                    // specify that it's a page within the multipage file
+                    imagesData.SetField(TiffTag.SUBFILETYPE, FileType.PAGE);
+                    // specify the page number
+                    imagesData.SetField(TiffTag.PAGENUMBER, page, data.Length);
+
+                    for (int i = 0; i < imageHeight; i++)
+                    {
+                        Byte[] buffer = new byte[data[page].Length * sizeof(ushort)];
+
+                        Buffer.BlockCopy(data, i * imageWidth, buffer, 0, buffer.Length);
+                        imagesData.WriteScanline(buffer, i);
+                    }
+
+                    imagesData.WriteDirectory();
+                }
+
+                imagesData.FlushData();
             }
-            foreach (ushort[] imageData in data)
-            {
-                
-            }
-            return false;
         }
-        public static bool WriteToDisk(ushort[] data, String fileName, int imageWidth, int imageHeight, int samplesPerPixel = 1, Compression compression = Compression.NONE, int bitsPerSample = 16)
+        public static void WriteToDisk(ushort[] data, String fileName, int imageWidth, int imageHeight, int samplesPerPixel = 1, Compression compression = Compression.NONE, int bitsPerSample = 16)
         {//call this function after kernel convolution
             if (data == null)
                 throw new Exception("no data provided");
@@ -49,24 +76,25 @@ namespace profiler.io
                 imageData.SetField(TiffTag.FILLORDER, FillOrder.MSB2LSB);
                 imageData.SetField(TiffTag.ORIENTATION, Orientation.TOPLEFT);
                 imageData.SetField(TiffTag.RESOLUTIONUNIT, ResUnit.CENTIMETER);
+                imageData.SetField(TiffTag.COPYRIGHT,
+                    "ProjectStorm profiler " + DateTime.Now.Year.ToString(CultureInfo.InvariantCulture));
 
+                imageData.SetField(TiffTag.DOCUMENTNAME, "ProjectStorm");
                 imageData.SetField(TiffTag.ARTIST, "ProjectStorm");
                 imageData.SetField(TiffTag.IMAGEDESCRIPTION, "Test data constructed by openCL kernel of project storm");
+                imageData.SetField(TiffTag.SOFTWARE, "ProjectStorm profiler " + Assembly.GetExecutingAssembly().GetName().Version);
 
+                Byte[] buffer = new byte[data.Length * sizeof(ushort)];
+                Buffer.BlockCopy(data, 0, buffer, 0, buffer.Length);
+               
                 for (int i = 0; i < imageHeight; i++)
                 {
-                    Byte[] buffer = new byte[data.Length * sizeof(ushort)];
-
-                    Buffer.BlockCopy(data, i*imageWidth, buffer, 0, buffer.Length);
+                    
                     imageData.WriteScanline(buffer, i);
                 }
                 
-//                imageData.WriteDirectory();
                 imageData.FlushData();
-                imageData.Close();
             }
-            
-            return true;
         }
 
         public void TestTiffWrite()
