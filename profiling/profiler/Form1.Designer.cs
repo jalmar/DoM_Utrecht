@@ -142,7 +142,7 @@
             // TextBoxImageDimensionX
             // 
             this.TextBoxImageDimensionX.Location = new System.Drawing.Point(26, 38);
-            this.TextBoxImageDimensionX.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.TextBoxImageDimensionX.Margin = new System.Windows.Forms.Padding(2);
             this.TextBoxImageDimensionX.Name = "TextBoxImageDimensionX";
             this.TextBoxImageDimensionX.Size = new System.Drawing.Size(70, 20);
             this.TextBoxImageDimensionX.TabIndex = 8;
@@ -184,9 +184,9 @@
             this.labelTransformationType.Location = new System.Drawing.Point(270, 20);
             this.labelTransformationType.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelTransformationType.Name = "labelTransformationType";
-            this.labelTransformationType.Size = new System.Drawing.Size(100, 13);
+            this.labelTransformationType.Size = new System.Drawing.Size(124, 13);
             this.labelTransformationType.TabIndex = 13;
-            this.labelTransformationType.Text = "Transformation type";
+            this.labelTransformationType.Text = "TransformationType type";
             // 
             // comboBoxTransform
             // 
@@ -197,7 +197,7 @@
             "transformation C = 3",
             "transformation D = 4"});
             this.comboBoxTransform.Location = new System.Drawing.Point(273, 38);
-            this.comboBoxTransform.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.comboBoxTransform.Margin = new System.Windows.Forms.Padding(2);
             this.comboBoxTransform.Name = "comboBoxTransform";
             this.comboBoxTransform.Size = new System.Drawing.Size(100, 21);
             this.comboBoxTransform.TabIndex = 14;
@@ -206,7 +206,7 @@
             // TextBoxImageDimensionY
             // 
             this.TextBoxImageDimensionY.Location = new System.Drawing.Point(26, 59);
-            this.TextBoxImageDimensionY.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.TextBoxImageDimensionY.Margin = new System.Windows.Forms.Padding(2);
             this.TextBoxImageDimensionY.Name = "TextBoxImageDimensionY";
             this.TextBoxImageDimensionY.Size = new System.Drawing.Size(70, 20);
             this.TextBoxImageDimensionY.TabIndex = 15;
@@ -215,7 +215,7 @@
             // TextBoxImageDimensionZ
             // 
             this.TextBoxImageDimensionZ.Location = new System.Drawing.Point(26, 80);
-            this.TextBoxImageDimensionZ.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.TextBoxImageDimensionZ.Margin = new System.Windows.Forms.Padding(2);
             this.TextBoxImageDimensionZ.Name = "TextBoxImageDimensionZ";
             this.TextBoxImageDimensionZ.Size = new System.Drawing.Size(70, 20);
             this.TextBoxImageDimensionZ.TabIndex = 16;
@@ -282,7 +282,6 @@
             this.labelSaveOutputFile.Location = new System.Drawing.Point(110, 48);
             this.labelSaveOutputFile.MaximumSize = new System.Drawing.Size(238, 23);
             this.labelSaveOutputFile.Name = "labelSaveOutputFile";
-            this.labelSaveOutputFile.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.labelSaveOutputFile.Size = new System.Drawing.Size(238, 23);
             this.labelSaveOutputFile.TabIndex = 4;
             this.labelSaveOutputFile.Text = "...";
@@ -413,7 +412,7 @@
             // textBoxShiftX
             // 
             this.textBoxShiftX.Location = new System.Drawing.Point(181, 84);
-            this.textBoxShiftX.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxShiftX.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxShiftX.Name = "textBoxShiftX";
             this.textBoxShiftX.Size = new System.Drawing.Size(70, 20);
             this.textBoxShiftX.TabIndex = 29;
@@ -422,7 +421,7 @@
             // textBoxShiftY
             // 
             this.textBoxShiftY.Location = new System.Drawing.Point(181, 105);
-            this.textBoxShiftY.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxShiftY.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxShiftY.Name = "textBoxShiftY";
             this.textBoxShiftY.Size = new System.Drawing.Size(70, 20);
             this.textBoxShiftY.TabIndex = 30;
@@ -470,7 +469,7 @@
             // textBoxShiftZ
             // 
             this.textBoxShiftZ.Location = new System.Drawing.Point(193, 264);
-            this.textBoxShiftZ.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBoxShiftZ.Margin = new System.Windows.Forms.Padding(2);
             this.textBoxShiftZ.Name = "textBoxShiftZ";
             this.textBoxShiftZ.Size = new System.Drawing.Size(70, 20);
             this.textBoxShiftZ.TabIndex = 32;
@@ -494,7 +493,7 @@
             this.Controls.Add(this.buttonCalculate);
             this.Controls.Add(this.DeviceCombox);
             this.Controls.Add(this.PlatformCombox);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Location = new System.Drawing.Point(1300, 0);
             this.MaximizeBox = false;

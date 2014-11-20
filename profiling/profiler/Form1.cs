@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -26,6 +27,8 @@ namespace profiler
         private String _sourceDir = String.Empty;
         private String _saveDir = String.Empty;
 
+        private const uint FluorophoreParameterCount = 4;
+        
         public Form1()
         {
             _imageDimensionZ = 0;
@@ -40,14 +43,14 @@ namespace profiler
             PlatformCombox.DataSource = platforms.ToList();
             PlatformCombox.DisplayMember = "Name";
 
-            comboBoxTransform.DataSource = Enum.GetValues(typeof(Transformation));
+            comboBoxTransform.DataSource = Enum.GetValues(typeof(TransformationType));
 
             //TODO need to be removed, nor for testing {
-            _sourceFilename = "..\\..\\..\\data\\fluorophores_test.csv";
+            _sourceFilename = "..\\..\\..\\data\\fluorophores_test3.csv";
             textBoxSelectSourceFile.Text = _sourceFilename;
             _saveFilename = "..\\..\\..\\data\\fluorophores_test.tif";
             labelSaveOutputFile.Text = _saveFilename;
-            comboBoxTransform.SelectedItem = Transformation.Affine;
+            comboBoxTransform.SelectedItem = TransformationType.Affine;
             //TODO }
         }
 
@@ -104,23 +107,35 @@ namespace profiler
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            float dx = float.Parse(textBoxShiftX.Text);
-//            float.TryParse(textBoxShiftX.Text,NumberStyles.Float,new NumberFormatInfo(), out dx);
-            float dy = float.Parse(textBoxShiftY.Text);
-            float dz = float.Parse(textBoxShiftZ.Text);
+            float dx;
+            bool shiftXParse = float.TryParse(textBoxShiftX.Text, NumberStyles.Float, CultureInfo.InvariantCulture.NumberFormat, out dx);
+            if (!shiftXParse)
+                throw new SyntaxErrorException(", needs to be .");
+
+            float dy;
+            bool shiftYParse = float.TryParse(textBoxShiftX.Text, NumberStyles.Float, CultureInfo.InvariantCulture.NumberFormat, out dy);
+            if (!shiftYParse)
+                throw new SyntaxErrorException(", needs to be  .");
+
+            float dz;
+            bool shiftZParse = float.TryParse(textBoxShiftX.Text, NumberStyles.Float, CultureInfo.InvariantCulture.NumberFormat, out dz);
+            if (!shiftZParse)
+                throw new SyntaxErrorException(", needs to be  .");
 
             int pixelCount = _imageDimensionX*_imageDimensionY*_imageDimensionZ;
 
             Console.WriteLine("Computing...");
             Console.WriteLine("Reading kernel...");
-            
-            String kernelString;
-            using (var sr = new StreamReader("..\\..\\..\\convolution.cl"))
-                kernelString = sr.ReadToEnd();
 
+            String kernelPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+
+            String kernelString;
+            using (var sr = new StreamReader(kernelPath + "\\convolution.cl"))
+                kernelString = sr.ReadToEnd();
+            
             Console.WriteLine("Reading kernel... done");
 
-            float[] selectedTransformation = Transformations.GetTransformation((Transformation)comboBoxTransform.SelectedItem, _imageDimensionX, _imageDimensionY, _imageDimensionZ, dx, dy, dz);
+            float[] selectedTransformation = Transformations.GetTransformation((TransformationType)comboBoxTransform.SelectedItem, _imageDimensionX, _imageDimensionY, _imageDimensionZ, dx, dy, dz);
 
             //create openCL program
             ComputeProgram computeProgram = new ComputeProgram(computeContext, kernelString);
@@ -152,7 +167,7 @@ namespace profiler
 ////////////////////////////////////////////////////////////////
 // Create Buffers Transform
 ////////////////////////////////////////////////////////////////
-            ComputeBuffer<float> fluorophoresCoords = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadWrite, 4 * sizeof(float) * fluorophores.LongLength);
+            ComputeBuffer<float> fluorophoresCoords = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadWrite, sizeof(float) * fluorophores.LongLength);
 
             ComputeBuffer<float> transformationMatrix = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadOnly, sizeof(float) * selectedTransformation.LongLength);
 
@@ -173,7 +188,6 @@ namespace profiler
             long[] globalWorkOffsetTransformFluorophoresKernel = null;
             long[] globalWorkSizeTransformFluorophoresKernel = new long[]   { fluorophores.Length };
             long[] localWorkSizeTransformFluorophoresKernel = null;
-//            long[] localWorkSizeTransformFluorophoresKernel = new long[globalWorkSizeTransformFluorophoresKernel.Length / _selectedComputeDevice.MaxComputeUnits];
 
 ////////////////////////////////////////////////////////
 // Enqueue the transformFluorophoresKernel for execution
@@ -181,15 +195,15 @@ namespace profiler
 
             transformFluorophoresEvents.Clear();
 
-            float[] transformedFluorophores = new float[fluorophores.Length * 4 * sizeof(float)];
-            
-            
+            float[] transformedFluorophores = new float[fluorophores.Length];
+
             computeCommandQueue.WriteToBuffer(transformedFluorophores, fluorophoresCoords, false, transformFluorophoresEvents);
-
+            
             computeCommandQueue.Execute(transformFluorophoresKernel, globalWorkOffsetTransformFluorophoresKernel, globalWorkSizeTransformFluorophoresKernel, localWorkSizeTransformFluorophoresKernel, transformFluorophoresEvents);
-           
-            computeCommandQueue.ReadFromBuffer(fluorophoresCoords, ref transformedFluorophores, true, transformFluorophoresEvents);
-
+//            computeCommandQueue.ExecuteTask(transformFluorophoresKernel, transformFluorophoresEvents);
+            
+            computeCommandQueue.ReadFromBuffer(fluorophoresCoords, ref transformedFluorophores, false, transformFluorophoresEvents);
+            
             computeCommandQueue.Finish();
 
             transformFluorophoresEvents.Clear();
@@ -197,7 +211,7 @@ namespace profiler
             //TODO remove, only for testing
             for (int i = 0; i < transformedFluorophores.Length; i++)
             {
-                Console.WriteLine(transformedFluorophores[i]);
+                Console.WriteLine("{0:0.0######}", transformedFluorophores[i]);
             }
             // /TODO remove, only for testing
 
@@ -350,7 +364,7 @@ namespace profiler
 
         private void comboBoxTransform_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Console.WriteLine("Transformation type set to: \n\t" + ((ComboBox)sender).SelectedItem);
+            Console.WriteLine("TransformationType type set to: \n\t" + ((ComboBox)sender).SelectedItem);
         }
 
         private void buttonListDeviceInfo_Click(object sender, EventArgs e)
