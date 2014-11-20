@@ -2,19 +2,19 @@
 
 namespace profiler.utils
 {
-    public enum Transformation
+    public enum TransformationType
     {
         Rigid = 0,
         Affine = 1
     }
     class Transformations
     {
-        public static float[] GetTransformation(Transformation transformation, int imageDimensionX, int imageDimensionY, int imageDimensionZ, float dx, float dy, float dz)
+        public static float[] GetTransformation(TransformationType transformationType, int imageDimensionX, int imageDimensionY, int imageDimensionZ, float dx, float dy, float dz)
         {
-            if (transformation == Transformation.Rigid)
+            if (transformationType == TransformationType.Rigid)
                 throw new NotImplementedException();
 
-            if (transformation == Transformation.Affine)
+            if (transformationType == TransformationType.Affine)
             {
                 return new[]
                 {
