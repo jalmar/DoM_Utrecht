@@ -46,7 +46,7 @@ namespace profiler
             comboBoxTransform.DataSource = Enum.GetValues(typeof(TransformationType));
 
             //TODO need to be removed, nor for testing {
-            _sourceFilename = "..\\..\\..\\data\\fluorophores_test3.csv";
+            _sourceFilename = "..\\..\\..\\data\\fluorophores_test.csv";
             textBoxSelectSourceFile.Text = _sourceFilename;
             _saveFilename = "..\\..\\..\\data\\fluorophores_test.tif";
             labelSaveOutputFile.Text = _saveFilename;
@@ -135,7 +135,7 @@ namespace profiler
             
             Console.WriteLine("Reading kernel... done");
 
-            float[] selectedTransformation = Transformations.GetTransformation((TransformationType)comboBoxTransform.SelectedItem, _imageDimensionX, _imageDimensionY, _imageDimensionZ, dx, dy, dz);
+            float[] selectedTransformation = Transformations.GetTransformation((TransformationType)comboBoxTransform.SelectedItem, 1.0f / float.Parse(textBoxPixelSize.Text), 1.0f / float.Parse(textBoxPixelSize.Text), 1.0f / float.Parse(textBoxPixelSize.Text), dx, dy, dz);
 
             //create openCL program
             ComputeProgram computeProgram = new ComputeProgram(computeContext, kernelString);
@@ -173,7 +173,7 @@ namespace profiler
 
 /////////////////////////////////////////////
 // Create the transformFluorophoresKernel
-/////////////////////////////////////////////
+///////////////////////////////////////////////////////////
             ComputeKernel transformFluorophoresKernel = computeProgram.CreateKernel("transform_fluorophores");
             
 /////////////////////////////////////////////
@@ -195,14 +195,15 @@ namespace profiler
 
             transformFluorophoresEvents.Clear();
 
+            computeCommandQueue.WriteToBuffer(fluorophores, fluorophoresCoords, true, null);
+            computeCommandQueue.WriteToBuffer(selectedTransformation, transformationMatrix, true, null);
+            
+            computeCommandQueue.Execute(transformFluorophoresKernel, globalWorkOffsetTransformFluorophoresKernel, globalWorkSizeTransformFluorophoresKernel, localWorkSizeTransformFluorophoresKernel, null);
+//            computeCommandQueue.ExecuteTask(transformFluorophoresKernel, transformFluorophoresEvents);
+
             float[] transformedFluorophores = new float[fluorophores.Length];
 
-            computeCommandQueue.WriteToBuffer(transformedFluorophores, fluorophoresCoords, false, transformFluorophoresEvents);
-            
-            computeCommandQueue.Execute(transformFluorophoresKernel, globalWorkOffsetTransformFluorophoresKernel, globalWorkSizeTransformFluorophoresKernel, localWorkSizeTransformFluorophoresKernel, transformFluorophoresEvents);
-//            computeCommandQueue.ExecuteTask(transformFluorophoresKernel, transformFluorophoresEvents);
-            
-            computeCommandQueue.ReadFromBuffer(fluorophoresCoords, ref transformedFluorophores, false, transformFluorophoresEvents);
+            computeCommandQueue.ReadFromBuffer(fluorophoresCoords, ref transformedFluorophores, true, null);
             
             computeCommandQueue.Finish();
 
@@ -211,7 +212,7 @@ namespace profiler
             //TODO remove, only for testing
             for (int i = 0; i < transformedFluorophores.Length; i++)
             {
-                Console.WriteLine("{0:0.0######}", transformedFluorophores[i]);
+                Console.WriteLine(transformedFluorophores[i]);
             }
             // /TODO remove, only for testing
 

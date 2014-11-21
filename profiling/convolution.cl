@@ -47,8 +47,8 @@ __kernel void transform_fluorophores (
 	// get fluorophore data and create new empty fluorophore for result
 	__private const int global_id = get_global_id(0);
 	__private union fluorophore_t original = fluorophores[global_id];
-	__private union fluorophore_t transformed;// = ( 0.0f );
-	transformed.elements = (0.0f);
+	__private union fluorophore_t transformed;
+	transformed.elements = 0.0f;
 	
 	// retain parameter value and set homogenous coordinate value
 	__private const scalar_t param = original.element[3];
