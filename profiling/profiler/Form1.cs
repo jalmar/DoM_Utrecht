@@ -273,7 +273,7 @@ namespace profiler
 
 
             Console.WriteLine("Writing data to file...");
-            io.CsvData.WriteToDisk("..\\..\\..\\output.csv", resultImageData);
+//            io.CsvData.WriteToDisk("..\\..\\..\\output.csv", resultImageData);
             TiffData.WriteToDisk(resultImageData, _saveFilename, _imageDimensionX, _imageDimensionY);
             Console.WriteLine("Writing data to file... done");
 

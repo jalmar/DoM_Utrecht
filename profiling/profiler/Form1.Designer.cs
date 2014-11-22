@@ -152,7 +152,7 @@
             this.TextBoxImageDimensionX.Name = "TextBoxImageDimensionX";
             this.TextBoxImageDimensionX.Size = new System.Drawing.Size(103, 26);
             this.TextBoxImageDimensionX.TabIndex = 8;
-            this.TextBoxImageDimensionX.Text = "1024";
+            this.TextBoxImageDimensionX.Text = "128";
             // 
             // labelImagedimension
             // 
@@ -210,7 +210,7 @@
             this.TextBoxImageDimensionY.Name = "TextBoxImageDimensionY";
             this.TextBoxImageDimensionY.Size = new System.Drawing.Size(103, 26);
             this.TextBoxImageDimensionY.TabIndex = 15;
-            this.TextBoxImageDimensionY.Text = "1024";
+            this.TextBoxImageDimensionY.Text = "128";
             // 
             // TextBoxImageDimensionZ
             // 
