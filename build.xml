@@ -59,6 +59,7 @@
 		<jar jarfile="${dist}/DoM_GPU-${version}.jar">
 			<fileset dir="${build}" includes="DOM/**" />
 			<fileset dir="${src}" includes="FittingKernelLMA.cl" />
+			<fileset dir="${src}" includes="convolution.cl" />
 			<fileset dir="${src}" includes="plugins.config" />
 			<manifest>
 				<attribute name="Signature-Title" value="${project.name}" />
@@ -73,7 +74,7 @@
 	<target name="compile" depends="jaolho" description="compiling source code">
 		<echo>Compiling source code</echo>
 		<mkdir dir="${build}" />
-		<javac destdir="${build}" source="1.6" target="1.6" includeantruntime="false">
+		<javac destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="true">
 			<compilerarg value="-Xlint:unchecked" />
 			<src path="${src}/DOM" />
 			<classpath refid="dom.classpath" />
