@@ -30,6 +30,11 @@ public class GPUConvolve_plugin implements PlugIn
 	/**
 	 *	Members
 	 */
+	private static int TRANSFORM_LWGS = 512;
+	private static int CONVOLVE_LWGS = 512;
+	
+	private static float PSF_SIGMA = 1.8f;
+	private static float PIXEL_SIZE = 64.0f;
 	
 	/**
 	 *	Constructor
@@ -45,14 +50,26 @@ public class GPUConvolve_plugin implements PlugIn
 		
 		// ask for parameters
 		GenericDialog gd = new GenericDialog("Convolve fluorophores");
-		gd.addNumericField("Image width:", 0, 0);
-		gd.addNumericField("Image height:", 0, 0);
+		gd.addNumericField("Image width:", 128, 0);
+		gd.addNumericField("Image height:", 128, 0);
+		gd.setInsets(10, 0, 10);
+		gd.addNumericField("PSF sigma:", PSF_SIGMA, 2);
+		gd.addNumericField("Pixel size:", PIXEL_SIZE, 0);
+		gd.setInsets(10, 0, 10);
+		gd.addNumericField("Transform LGWS:", TRANSFORM_LWGS, 0);
+		gd.addNumericField("Convolve LGWS:", CONVOLVE_LWGS, 0);
 		gd.showDialog();
 		if(gd.wasCanceled()) return;
 		
 		// retrieve parameters
 		int image_width = (int) gd.getNextNumber();
 		int image_height = (int) gd.getNextNumber();
+		
+		PSF_SIGMA = (float) gd.getNextNumber();
+		PIXEL_SIZE = (float) gd.getNextNumber();
+		
+		TRANSFORM_LWGS = (int) gd.getNextNumber();
+		CONVOLVE_LWGS = (int) gd.getNextNumber();
 		
 		// DEBUG: print parameters
 		System.err.println("Image width = " + image_width);
@@ -84,7 +101,7 @@ public class GPUConvolve_plugin implements PlugIn
 		GPUBase gpu = null;
 		try
 		{
-			gpu = new GPUBase(false, false, false, false); // no double precision, no automatic mode, no profiling and no debugging mode enabled
+			gpu = new GPUBase(false, false, true, false); // no double precision, no automatic mode, yes profiling and no debugging mode enabled
 		}
 		catch(CLException cle)
 		{
@@ -150,7 +167,16 @@ public class GPUConvolve_plugin implements PlugIn
 			}
 		}
 		
+		// set properties
+		GPUConvolve.setTransformLWGS(TRANSFORM_LWGS);
+		GPUConvolve.setConvolveLWGS(CONVOLVE_LWGS);
+		GPUConvolve.setPSFSigma(PSF_SIGMA);
+		GPUConvolve.setPixelSize(PIXEL_SIZE);
+		
+		// run gpu convolve
 		GPUConvolve.run(gpu, fluorophores, ip);
+		
+		// reset image range
 		ip.resetMinAndMax();
 		return new ImagePlus("Convolved fluorophores result", ip);
 	}

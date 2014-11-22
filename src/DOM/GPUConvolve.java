@@ -27,8 +27,33 @@ public class GPUConvolve
 	 */
 	private static final int CL_DATATYPE_SIZE = Sizeof.cl_float;
 	
-	private static final int TRANSFORM_LWG_SIZE = 512;
-	private static final int CONVOLVE_LWG_SIZE = 512;
+	private static int TRANSFORM_LWG_SIZE = 512;
+	private static int CONVOLVE_LWG_SIZE = 512;
+	
+	private static float PSF_SIGMA = 1.8f;
+	
+	private static float PIXEL_SIZE = 64.0f;
+	
+	public static void setTransformLWGS(int lwgs)
+	{
+		TRANSFORM_LWG_SIZE = lwgs;
+	}
+	
+	public static void setConvolveLWGS(int lwgs)
+	{
+		CONVOLVE_LWG_SIZE = lwgs;
+	}
+	
+	public static void setPSFSigma(float sigma)
+	{
+		PSF_SIGMA = sigma;
+	}
+	
+	public static void setPixelSize(float size)
+	{
+		PIXEL_SIZE = size;
+	}
+	
 	
 	/**
 	 *	Hidden constructor
@@ -40,12 +65,12 @@ public class GPUConvolve
 	public static ImageProcessor run(GPUBase gpu, ResultsTable fluorophores, ImageProcessor image)
 	{
 		// customizable parameters
-		final float psf_sigma_x = 1.8f;
-		final float psf_sigma_y = 1.8f;
+		final float psf_sigma_x = PSF_SIGMA;
+		final float psf_sigma_y = PSF_SIGMA;
 		final float[] transformation_matrix = new float[]{
-			1.0f/64.0f,	0.0f,		0.0f,		0.0f,
-			0.0f,		1.0f/64.0f,	0.0f,		0.0f,
-			0.0f,		0.0f,		1.0f/64.0f,	0.0f,
+			1.0f/PIXEL_SIZE,	0.0f,		0.0f,		0.0f,
+			0.0f,		1.0f/PIXEL_SIZE,	0.0f,		0.0f,
+			0.0f,		0.0f,		1.0f/PIXEL_SIZE,	0.0f,
 			0.0f,		0.0f,		0.0f,		1.0f
 		};
 		
@@ -113,15 +138,40 @@ public class GPUConvolve
 		clSetKernelArg(convolve_kernel, 4, 4 * CL_DATATYPE_SIZE * CONVOLVE_LWG_SIZE, null); //Pointer.to(local_data_buffer));
 		clSetKernelArg(convolve_kernel, 5, Sizeof.cl_int, Pointer.to(new int[]{fluorophore_count}));
 		
+		// profiling
+		long start_time = 0l;
+		long end_time = 0l;
+		cl_event kernel_event = new cl_event();
+		long[] profiling_result = new long[1];
+		double time_diff = (double)(end_time - start_time);
+		String[] units = new String[]{"nanoseconds", "microseconds", "milliseconds", "seconds", "minutes", "hours", "way too long!"};
+		int unit_index = 0;
+		
 		// write data to memory buffers
 		clEnqueueWriteBuffer(gpu._ocl_queue, fluorophore_data_buffer, true, 0, 4 * fluorophore_count * CL_DATATYPE_SIZE, Pointer.to(fluorophore_data), 0, null, null);
 		clEnqueueWriteBuffer(gpu._ocl_queue, transformation_matrix_buffer, true, 0, 16 * CL_DATATYPE_SIZE, Pointer.to(transformation_matrix), 0, null, null);
 		
 		// transform the fluorophores to image space
-		long start_time = System.nanoTime();
-		clEnqueueNDRangeKernel(gpu._ocl_queue, transform_kernel, 1, null, new long[]{padded_fluorophore_count}, new long[]{TRANSFORM_LWG_SIZE}, 0, null, null);
-		long end_time = System.nanoTime();
-		System.err.println("Transformation of fluorophores took " + (end_time - start_time) + " nanoseconds");
+		clEnqueueNDRangeKernel(gpu._ocl_queue, transform_kernel, 1, null, new long[]{padded_fluorophore_count}, new long[]{TRANSFORM_LWG_SIZE}, 0, null, kernel_event);
+		
+		clWaitForEvents(1, new cl_event[]{kernel_event});
+		clGetEventProfilingInfo(kernel_event, CL_PROFILING_COMMAND_START, Sizeof.cl_long, Pointer.to(profiling_result), null);
+		start_time = profiling_result[0];
+		clGetEventProfilingInfo(kernel_event, CL_PROFILING_COMMAND_END, Sizeof.cl_long, Pointer.to(profiling_result), null);
+		end_time = profiling_result[0];
+		time_diff = (double)(end_time - start_time);
+		unit_index = 0;
+		while(time_diff > 1e3f && unit_index < 3)
+		{
+			time_diff /= 1e3f;
+			++unit_index;
+		}
+		while(time_diff > 60f && unit_index < 5)
+		{
+			time_diff /= 60f;
+			++unit_index;
+		}
+		System.err.format("Transformation of fluorophores took %.1f %s\n", (time_diff), units[unit_index]);
 		
 		// retrieve transformed fluorophore data
 		float[] transformed_fluorophores_data = new float[4*fluorophore_count];
@@ -133,10 +183,26 @@ public class GPUConvolve
 //		}
 		
 		// convolve the fluorophores into an image
-		start_time = System.nanoTime();
-		clEnqueueNDRangeKernel(gpu._ocl_queue, convolve_kernel, 1, null, new long[]{padded_pixel_count}, new long[]{CONVOLVE_LWG_SIZE}, 0, null, null);
-		end_time = System.nanoTime();
-		System.err.println("Convolution of fluorophores took " + (end_time - start_time) + " nanoseconds");
+		clEnqueueNDRangeKernel(gpu._ocl_queue, convolve_kernel, 1, null, new long[]{padded_pixel_count}, new long[]{CONVOLVE_LWG_SIZE}, 0, null, kernel_event);
+		
+		clWaitForEvents(1, new cl_event[]{kernel_event});
+		clGetEventProfilingInfo(kernel_event, CL_PROFILING_COMMAND_START, Sizeof.cl_long, Pointer.to(profiling_result), null);
+		start_time = profiling_result[0];
+		clGetEventProfilingInfo(kernel_event, CL_PROFILING_COMMAND_END, Sizeof.cl_long, Pointer.to(profiling_result), null);
+		end_time = profiling_result[0];
+		time_diff = (double)(end_time - start_time);
+		unit_index = 0;
+		while(time_diff > 1e3f && unit_index < 3)
+		{
+			time_diff /= 1e3f;
+			++unit_index;
+		}
+		while(time_diff > 60f && unit_index < 5)
+		{
+			time_diff /= 60f;
+			++unit_index;
+		}
+		System.err.format("Convolution of fluorophores took %.1f %s\n", (time_diff), units[unit_index]);
 		
 		// retrieve image data
 		float[] image_data = new float[pixel_count];
