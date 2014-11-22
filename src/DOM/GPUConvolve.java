@@ -127,10 +127,10 @@ public class GPUConvolve
 		float[] transformed_fluorophores_data = new float[4*fluorophore_count];
 		clEnqueueReadBuffer(gpu._ocl_queue, fluorophore_data_buffer, CL_TRUE, 0, 4 * fluorophore_count * CL_DATATYPE_SIZE, Pointer.to(transformed_fluorophores_data), 0, null, null);
 		
-		for(int i = 0; i < transformed_fluorophores_data.length; i+=4)
-		{
-			System.err.println(transformed_fluorophores_data[i] + "," + transformed_fluorophores_data[i+1] + "," + transformed_fluorophores_data[i+2] + "," + transformed_fluorophores_data[i+3]);
-		}
+//		for(int i = 0; i < transformed_fluorophores_data.length; i+=4)
+//		{
+//			System.err.println(transformed_fluorophores_data[i] + "," + transformed_fluorophores_data[i+1] + "," + transformed_fluorophores_data[i+2] + "," + transformed_fluorophores_data[i+3]);
+//		}
 		
 		// convolve the fluorophores into an image
 		start_time = System.nanoTime();
@@ -148,7 +148,7 @@ public class GPUConvolve
 			for(int px = 0; px < image_width; ++px)
 			{
 				int index = py * image_width + px;
-				System.err.println("(" + px + "," + py + " = " + image_data[index]);
+//				System.err.println("(" + px + "," + py + " = " + image_data[index]);
 				image.putPixelValue(px, py, image_data[index]);
 			}
 		}
