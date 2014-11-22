@@ -9,7 +9,7 @@ namespace profiler.utils
     }
     class Transformations
     {
-        public static float[] GetTransformation(TransformationType transformationType, int imageDimensionX, int imageDimensionY, int imageDimensionZ, float dx, float dy, float dz)
+        public static float[] GetTransformation(TransformationType transformationType, float imageDimensionX, float imageDimensionY, float imageDimensionZ, float dx, float dy, float dz)
         {
             if (transformationType == TransformationType.Rigid)
                 throw new NotImplementedException();

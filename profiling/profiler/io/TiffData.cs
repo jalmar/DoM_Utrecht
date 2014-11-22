@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
 using System.Reflection;
+using System.Security.Cryptography;
 using BitMiracle.LibTiff.Classic;
 using Orientation = BitMiracle.LibTiff.Classic.Orientation;
 
@@ -84,15 +86,33 @@ namespace profiler.io
                 imageData.SetField(TiffTag.IMAGEDESCRIPTION, "Test data constructed by openCL kernel of project storm");
                 imageData.SetField(TiffTag.SOFTWARE, "ProjectStorm profiler " + Assembly.GetExecutingAssembly().GetName().Version);
 
-                Byte[] buffer = new byte[data.Length * sizeof(ushort)];
-                Buffer.BlockCopy(data, 0, buffer, 0, buffer.Length);
-               
+//                Byte[] buffer = new byte[data.Length * sizeof(ushort)];
+
+//                for (int i = 0; i < data.Length; i++)
+//                {
+//                    byte[] bytes = BitConverter.GetBytes(data[i]);
+//                    buffer[2*i] = bytes[0];
+//                    buffer[2*i+1] = bytes[1];
+//                }
+                Console.WriteLine(imageData.ScanlineSize());
+//                Tiff.ShortsToByteArray(data, 0, data.Length,buffer,0);
                 for (int i = 0; i < imageHeight; i++)
                 {
+
+                    ushort[] rowData = new ushort[imageWidth];
+                    for (int j = 0; j < imageWidth; j++)
+                    {
+                        rowData[j] = data[i*imageWidth + j];
+                    }
+
+                    Byte[] buffer = new byte[rowData.Length * sizeof(ushort)];
+   
+                    Buffer.BlockCopy(rowData, 0, buffer, 0, buffer.Length);
+
                     
                     imageData.WriteScanline(buffer, i);
                 }
-                
+                Console.WriteLine(imageData.ScanlineSize());
                 imageData.FlushData();
             }
         }

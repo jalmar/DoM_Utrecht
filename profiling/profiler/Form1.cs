@@ -46,9 +46,10 @@ namespace profiler
             comboBoxTransform.DataSource = Enum.GetValues(typeof(TransformationType));
 
             //TODO need to be removed, nor for testing {
-            _sourceFilename = "..\\..\\..\\data\\fluorophores_test.csv";
+//            _sourceFilename = "..\\..\\..\\data\\fluorophores_test.csv";
+            _sourceFilename = "..\\..\\..\\data\\fluorophores_1k.csv";
             textBoxSelectSourceFile.Text = _sourceFilename;
-            _saveFilename = "..\\..\\..\\data\\fluorophores_test.tif";
+            _saveFilename = "..\\..\\..\\data\\fluorophores_1k_GPU.tif";
             labelSaveOutputFile.Text = _saveFilename;
             comboBoxTransform.SelectedItem = TransformationType.Affine;
             //TODO }
@@ -167,9 +168,9 @@ namespace profiler
 ////////////////////////////////////////////////////////////////
 // Create Buffers Transform
 ////////////////////////////////////////////////////////////////
-            ComputeBuffer<float> fluorophoresCoords = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadWrite, sizeof(float) * fluorophores.LongLength);
+            ComputeBuffer<float> fluorophoresCoords = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadWrite, fluorophores.LongLength);
 
-            ComputeBuffer<float> transformationMatrix = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadOnly, sizeof(float) * selectedTransformation.LongLength);
+            ComputeBuffer<float> transformationMatrix = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.ReadOnly, selectedTransformation.LongLength);
 
 /////////////////////////////////////////////
 // Create the transformFluorophoresKernel
@@ -186,7 +187,7 @@ namespace profiler
 // Configure the work-item structure
 /////////////////////////////////////////////
             long[] globalWorkOffsetTransformFluorophoresKernel = null;
-            long[] globalWorkSizeTransformFluorophoresKernel = new long[]   { fluorophores.Length };
+            long[] globalWorkSizeTransformFluorophoresKernel = new long[]   { fluorophores.Length / 4 };
             long[] localWorkSizeTransformFluorophoresKernel = null;
 
 ////////////////////////////////////////////////////////
@@ -210,10 +211,10 @@ namespace profiler
             transformFluorophoresEvents.Clear();
             
             //TODO remove, only for testing
-            for (int i = 0; i < transformedFluorophores.Length; i++)
-            {
-                Console.WriteLine(transformedFluorophores[i]);
-            }
+//            for (int i = 0; i < transformedFluorophores.Length; i++)
+//            {
+//                Console.WriteLine(transformedFluorophores[i]);
+//            }
             // /TODO remove, only for testing
 
             stopwatch.Stop();
@@ -225,50 +226,54 @@ namespace profiler
 ////////////////////////////////////////////////////////////////
 // Create Buffers Convolve Fluorophores
 ////////////////////////////////////////////////////////////////
-            ushort[] resultImageDimension = new ushort[pixelCount];
-            ComputeBuffer<ushort> resultImage = new ComputeBuffer<ushort>(computeContext, ComputeMemoryFlags.WriteOnly, resultImageDimension);
 
+            const int convolve_kernel_lwgs = 16;
+            int totalBuffer = (int) Math.Ceiling(pixelCount / (float)convolve_kernel_lwgs) * convolve_kernel_lwgs;
+
+            ComputeBuffer<ushort> resultImage = new ComputeBuffer<ushort>(computeContext, ComputeMemoryFlags.WriteOnly, totalBuffer);
 
 /////////////////////////////////////////////
 // Create the transformFluorophoresKernel
 /////////////////////////////////////////////
             ComputeKernel convolveFluorophoresKernel = computeProgram.CreateKernel("convolve_fluorophores");
 
-
 /////////////////////////////////////////////
 // Set the convolveFluorophoresKernel arguments
 /////////////////////////////////////////////
+
             convolveFluorophoresKernel.SetMemoryArgument(0, resultImage);
             convolveFluorophoresKernel.SetValueArgument(1, _imageDimensionX);
             convolveFluorophoresKernel.SetValueArgument(2, _imageDimensionY);
             convolveFluorophoresKernel.SetMemoryArgument(3, fluorophoresCoords);
-            convolveFluorophoresKernel.SetLocalArgument(4, fluorophoresCoords.Count);
-            convolveFluorophoresKernel.SetValueArgument(5, fluorophores.Length);
+            convolveFluorophoresKernel.SetLocalArgument(4, convolve_kernel_lwgs);
+            convolveFluorophoresKernel.SetValueArgument(5, fluorophores.Length / 4);
 
 /////////////////////////////////////////////
 // Configure the work-item structure
 /////////////////////////////////////////////
             long[] globalWorkOffsetTransformConvolveFluorophoresKernel = null;
             long[] globalWorkSizeTransformConvolveFluorophoresKernel = new long[] { pixelCount };
-            long[] localWorkSizeTransformConvolveFluorophoresKernel = null;
+            long[] localWorkSizeTransformConvolveFluorophoresKernel = new long[] {convolve_kernel_lwgs};
             
 ////////////////////////////////////////////////////////
 // Enqueue the convolveFluorophoresKernel for execution
 ////////////////////////////////////////////////////////
 
-            ushort[] resultImageData = new ushort[pixelCount];
+            computeCommandQueue.Execute(convolveFluorophoresKernel, globalWorkOffsetTransformConvolveFluorophoresKernel, globalWorkSizeTransformConvolveFluorophoresKernel, localWorkSizeTransformConvolveFluorophoresKernel, null);
 
-            computeCommandQueue.WriteToBuffer(resultImageData, resultImage, false, convolveFluorophoresEvents);
-
-            computeCommandQueue.Execute(convolveFluorophoresKernel, globalWorkOffsetTransformConvolveFluorophoresKernel, globalWorkSizeTransformConvolveFluorophoresKernel, localWorkSizeTransformConvolveFluorophoresKernel, convolveFluorophoresEvents);
-           
-            computeCommandQueue.ReadFromBuffer(resultImage, ref resultImageData, false, convolveFluorophoresEvents);
+            ushort[] resultImageData = new ushort[totalBuffer];
+            computeCommandQueue.ReadFromBuffer(resultImage, ref resultImageData, true, null);
 
             computeCommandQueue.Finish();
 
+            for (int i = 0; i < pixelCount; i++)
+            {
+                Console.WriteLine(resultImageData[i]);
+            }
 
 
             Console.WriteLine("Writing data to file...");
+            io.CsvData.WriteToDisk("..\\..\\..\\output.csv", resultImageData);
             TiffData.WriteToDisk(resultImageData, _saveFilename, _imageDimensionX, _imageDimensionY);
             Console.WriteLine("Writing data to file... done");
 

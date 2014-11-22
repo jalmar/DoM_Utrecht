@@ -85,7 +85,7 @@ __kernel void convolve_fluorophores (
 	// TODO: additional parameters required
 	__private scalar_t psf_sigma_x = 1.8f;
 	__private scalar_t psf_sigma_y = psf_sigma_y; // symmetric
-	__private scalar_t psf_amplitude = 1.0f;
+	__private scalar_t psf_amplitude = 1000.0f;
 	__private scalar_t exposure_decay = 0.0f;
 	
 	// OPTIM: prescale simga

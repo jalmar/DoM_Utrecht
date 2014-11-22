@@ -12,16 +12,23 @@ namespace profiler.io
 {
     public class CsvData
     {
-        public static void WriteToDisk(String fileName, List<String> dataList)
+        public static void WriteToDisk(String fileName, ushort[] dataList)
         {
             if (File.Exists(fileName))
                 throw new WarningException(fileName + "is overwritten");
 
             using (var sw = new StreamWriter(fileName))
             {
-                CsvWriter csvWriter = new CsvWriter(sw);
+                CsvWriter csvWriter = new CsvWriter(sw, new CsvConfiguration());
 
-                csvWriter.WriteRecords(dataList);
+                for (int i = 0; i < dataList.LongLength / 4; i++)
+                {
+                    csvWriter.WriteField(dataList[4 * i]);
+                    csvWriter.WriteField(dataList[4 * i + 1]);
+                    csvWriter.WriteField(dataList[4 * i + 2]);
+                    csvWriter.WriteField(dataList[4 * i + 3]);
+                    csvWriter.NextRecord();
+                }
             }
         }
 
