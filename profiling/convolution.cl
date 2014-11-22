@@ -36,7 +36,7 @@ union fluorophore_t {
 };
 
 typedef float scalar_t;
-typedef unsigned short pixel_t;
+//typedef unsigned short pixel_t;
 
 // *******************************************************************
 
@@ -75,7 +75,7 @@ __kernel void transform_fluorophores (
 // Global size image_width * image_height
 // Work group size (multiple of 16)
 __kernel void convolve_fluorophores (
-					__global pixel_t* const image,
+					__global scalar_t* const image,
 					__private const int image_width,
 					__private const int image_height,
 					__global const union fluorophore_t* const global_fluorophores,
@@ -84,7 +84,7 @@ __kernel void convolve_fluorophores (
 {
 	// TODO: additional parameters required
 	__private scalar_t psf_sigma_x = 1.8f;
-	__private scalar_t psf_sigma_y = psf_sigma_y; // symmetric
+	__private scalar_t psf_sigma_y = psf_sigma_x; // symmetric
 	__private scalar_t psf_amplitude = 1000.0f;
 	__private scalar_t exposure_decay = 0.0f;
 	
@@ -117,7 +117,7 @@ __kernel void convolve_fluorophores (
 	for (__private int k = 0; k < fluorophore_count; k += batch_size)
 	{
 		// check number of fluorophores left (last part may be partial batch)
-		// ALTERNATIVE: batch_size = select(fluorophore_count - k, batch_size, k + batch_size >= fluorophore_count);
+		// ALTERNATIVE: batch_size = select(fluorophore_count - k, batch_size, k + batch_size >= fluorophore_count); // works best for vector data type
 		if (k + batch_size >= fluorophore_count)
 		{
 			batch_size = fluorophore_count - k; // last remainder
@@ -143,7 +143,7 @@ __kernel void convolve_fluorophores (
 			
 			// calculate expore factors
 			__private scalar_t derrx = erf((dx - 0.5f) / prescaled_sigma_x) - erf((dx + 0.5f) / prescaled_sigma_x);
-			__private scalar_t derry = erf((dy - 0.5f) / prescaled_sigma_x) - erf((dy + 0.5f) / prescaled_sigma_x);
+			__private scalar_t derry = erf((dy - 0.5f) / prescaled_sigma_y) - erf((dy + 0.5f) / prescaled_sigma_y);
 			__private scalar_t exposure_factor = psf_amplitude * exp(-exposure_decay * fabs(dz));
 			
 			// sum effect of fluorophore on pixel
