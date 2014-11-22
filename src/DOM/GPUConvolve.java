@@ -27,8 +27,8 @@ public class GPUConvolve
 	 */
 	private static final int CL_DATATYPE_SIZE = Sizeof.cl_float;
 	
-	private static final int TRANSFORM_LWG_SIZE = 16;
-	private static final int CONVOLVE_LWG_SIZE = 16;
+	private static final int TRANSFORM_LWG_SIZE = 512;
+	private static final int CONVOLVE_LWG_SIZE = 512;
 	
 	/**
 	 *	Hidden constructor
