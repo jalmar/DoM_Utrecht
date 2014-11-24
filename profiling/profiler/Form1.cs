@@ -2,10 +2,13 @@
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using BitMiracle.LibTiff.Classic;
 using Cloo;
 using profiler.io;
 using profiler.utils;
@@ -27,8 +30,6 @@ namespace profiler
         private String _sourceDir = String.Empty;
         private String _saveDir = String.Empty;
 
-        private const uint FluorophoreParameterCount = 4;
-        
         public Form1()
         {
             _imageDimensionZ = 0;
@@ -46,7 +47,7 @@ namespace profiler
             comboBoxTransform.DataSource = Enum.GetValues(typeof(TransformationType));
 
             //TODO need to be removed, nor for testing {
-//            _sourceFilename = "..\\..\\..\\data\\fluorophores_test.csv";
+//            _sourceFilename = "..\\..\\..\\data\\fluorophores_radial_45_label_500_persistence_length_2000.csv";
             _sourceFilename = "..\\..\\..\\data\\fluorophores_1k.csv";
             textBoxSelectSourceFile.Text = _sourceFilename;
             _saveFilename = "..\\..\\..\\data\\fluorophores_1k_GPU.tif";
@@ -161,10 +162,6 @@ namespace profiler
 /////////////////////////////////////////////
             ComputeCommandQueue computeCommandQueue = new ComputeCommandQueue(computeContext, _selectedComputeDevice, ComputeCommandQueueFlags.None);
 
-            ComputeEventList transformFluorophoresEvents = new ComputeEventList(); 
-            ComputeEventList convolveFluorophoresEvents = new ComputeEventList(); 
-            
-
 ////////////////////////////////////////////////////////////////
 // Create Buffers Transform
 ////////////////////////////////////////////////////////////////
@@ -194,8 +191,6 @@ namespace profiler
 // Enqueue the transformFluorophoresKernel for execution
 ////////////////////////////////////////////////////////
 
-            transformFluorophoresEvents.Clear();
-
             computeCommandQueue.WriteToBuffer(fluorophores, fluorophoresCoords, true, null);
             computeCommandQueue.WriteToBuffer(selectedTransformation, transformationMatrix, true, null);
             
@@ -208,8 +203,6 @@ namespace profiler
             
             computeCommandQueue.Finish();
 
-            transformFluorophoresEvents.Clear();
-            
             //TODO remove, only for testing
 //            for (int i = 0; i < transformedFluorophores.Length; i++)
 //            {
@@ -230,7 +223,7 @@ namespace profiler
             const int convolve_kernel_lwgs = 16;
             int totalBuffer = (int) Math.Ceiling(pixelCount / (float)convolve_kernel_lwgs) * convolve_kernel_lwgs;
 
-            ComputeBuffer<ushort> resultImage = new ComputeBuffer<ushort>(computeContext, ComputeMemoryFlags.WriteOnly, totalBuffer);
+            ComputeBuffer<float> resultImage = new ComputeBuffer<float>(computeContext, ComputeMemoryFlags.WriteOnly, totalBuffer);
 
 /////////////////////////////////////////////
 // Create the transformFluorophoresKernel
@@ -258,10 +251,10 @@ namespace profiler
 ////////////////////////////////////////////////////////
 // Enqueue the convolveFluorophoresKernel for execution
 ////////////////////////////////////////////////////////
-
+            
             computeCommandQueue.Execute(convolveFluorophoresKernel, globalWorkOffsetTransformConvolveFluorophoresKernel, globalWorkSizeTransformConvolveFluorophoresKernel, localWorkSizeTransformConvolveFluorophoresKernel, null);
 
-            ushort[] resultImageData = new ushort[totalBuffer];
+            float[] resultImageData = new float[totalBuffer];
             computeCommandQueue.ReadFromBuffer(resultImage, ref resultImageData, true, null);
 
             computeCommandQueue.Finish();
@@ -271,10 +264,43 @@ namespace profiler
                 Console.WriteLine(resultImageData[i]);
             }
 
-
             Console.WriteLine("Writing data to file...");
-//            io.CsvData.WriteToDisk("..\\..\\..\\output.csv", resultImageData);
+//            CsvData.WriteToDisk("..\\..\\..\\output.csv", resultImageData);
             TiffData.WriteToDisk(resultImageData, _saveFilename, _imageDimensionX, _imageDimensionY);
+
+//            Bitmap bitmap = new Bitmap(_imageDimensionX, _imageDimensionY);
+
+//            float max = resultImageData.Max();
+
+//            float scale = 255/(float)max;
+
+//            for (int r = 0; r < _imageDimensionY; r++)
+//            {
+//                for (int c = 0; c < _imageDimensionX; c++)
+//                {
+//                    float value = resultImageData[c*(r + 1)];
+//                    Color newColor = Color.FromArgb((int)(value * scale), (int)(value * scale), (int)(value * scale));
+//                    bitmap.SetPixel(c,r, newColor);
+//                }
+//            }
+
+//            byte[] bytes = new byte[resultImageData.Length * sizeof(float)];
+//
+//            for (int index = 0; index < resultImageData.Length; index++)
+//            {
+//                byte[] bytes1 = BitConverter.GetBytes(resultImageData[index]);
+//                bytes[4 * index] = bytes1[0];
+//                bytes[4 * index + 1] = bytes1[1];
+//                bytes[4 * index + 2] = bytes1[2];
+//                bytes[4 * index + 3] = bytes1[3];
+//            }
+//
+//            using (MemoryStream ms = new MemoryStream(bytes))
+//            {
+//                Image image = Bitmap.FromStream(ms);
+//                image.Save("c:\\temp.bmp");
+//            }
+            
             Console.WriteLine("Writing data to file... done");
 
             stopwatch.Stop();

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Drawing;
 using System.Globalization;
 using System.Reflection;
-using System.Security.Cryptography;
 using BitMiracle.LibTiff.Classic;
 using Orientation = BitMiracle.LibTiff.Classic.Orientation;
 
@@ -57,7 +54,7 @@ namespace profiler.io
                 imagesData.FlushData();
             }
         }
-        public static void WriteToDisk(ushort[] data, String fileName, int imageWidth, int imageHeight, int samplesPerPixel = 1, Compression compression = Compression.NONE, int bitsPerSample = 16)
+        public static void WriteToDisk(float[] data, String fileName, int imageWidth, int imageHeight, int samplesPerPixel = 1, Compression compression = Compression.NONE, int bitsPerSample = 16)
         {//call this function after kernel convolution
             if (data == null)
                 throw new Exception("no data provided");
@@ -79,7 +76,7 @@ namespace profiler.io
                 imageData.SetField(TiffTag.ORIENTATION, Orientation.TOPLEFT);
                 imageData.SetField(TiffTag.RESOLUTIONUNIT, ResUnit.CENTIMETER);
                 imageData.SetField(TiffTag.COPYRIGHT,
-                    "ProjectStorm profiler " + DateTime.Now.Year.ToString(CultureInfo.InvariantCulture));
+                    "ProjectStorm profiler \u00A9" + DateTime.Now.Year.ToString(CultureInfo.InvariantCulture));
 
                 imageData.SetField(TiffTag.DOCUMENTNAME, "ProjectStorm");
                 imageData.SetField(TiffTag.ARTIST, "ProjectStorm");
@@ -99,7 +96,7 @@ namespace profiler.io
                 for (int i = 0; i < imageHeight; i++)
                 {
 
-                    ushort[] rowData = new ushort[imageWidth];
+                    float[] rowData = new float[imageWidth];
                     for (int j = 0; j < imageWidth; j++)
                     {
                         rowData[j] = data[i*imageWidth + j];
