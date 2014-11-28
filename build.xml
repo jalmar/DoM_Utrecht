@@ -59,7 +59,7 @@
 		<jar jarfile="${dist}/DoM_GPU-${version}.jar">
 			<fileset dir="${build}" includes="DOM/**" />
 			<fileset dir="${src}" includes="FittingKernelLMA.cl" />
-			<fileset dir="${src}" includes="convolution.cl" />
+			<fileset dir="${src}" includes="render.cl" />
 			<fileset dir="${src}" includes="plugins.config" />
 			<manifest>
 				<attribute name="Signature-Title" value="${project.name}" />

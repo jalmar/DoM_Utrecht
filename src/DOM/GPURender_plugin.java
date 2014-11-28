@@ -25,39 +25,43 @@ import org.jocl.CLException;
 /**
  *	Wrapper for the plugin
  */
-public class GPUConvolve_plugin implements PlugIn
+public class GPURender_plugin implements PlugIn
 {
 	/**
 	 *	Members
 	 */
 	private static int TRANSFORM_LWGS = 512;
-	private static int CONVOLVE_LWGS = 512;
+	private static int RENDER_LWGS = 512;
 	
 	private static float PSF_SIGMA = 1.8f;
 	private static float PIXEL_SIZE = 64.0f;
 	
+	private static boolean BINNING_METHOD = false;
+	
 	/**
 	 *	Constructor
 	 */
-	public GPUConvolve_plugin() { /* empty */ }
+	public GPURender_plugin() { /* empty */ }
 	
 	// ////////////////////////////////////////////////////////////////////////
 	
 	public void run(String arg)
 	{
-		IJ.register(GPUConvolve_plugin.class); // avoid garbage collection
-		IJ.register(GPUConvolve.class); // avoid garbage collection
+		IJ.register(GPURender_plugin.class); // avoid garbage collection
+		IJ.register(GPURender.class); // avoid garbage collection
 		
 		// ask for parameters
-		GenericDialog gd = new GenericDialog("Convolve fluorophores");
-		gd.addNumericField("Image width:", 128, 0);
-		gd.addNumericField("Image height:", 128, 0);
+		GenericDialog gd = new GenericDialog("Render fluorophores");
+		gd.addNumericField("Image_width:", 128, 0);
+		gd.addNumericField("Image_height:", 128, 0);
 		gd.setInsets(10, 0, 10);
-		gd.addNumericField("PSF sigma:", PSF_SIGMA, 2);
-		gd.addNumericField("Pixel size:", PIXEL_SIZE, 0);
+		gd.addNumericField("PSF_sigma:", PSF_SIGMA, 2);
+		gd.addNumericField("Pixel_size:", PIXEL_SIZE, 0);
 		gd.setInsets(10, 0, 10);
-		gd.addNumericField("Transform LGWS:", TRANSFORM_LWGS, 0);
-		gd.addNumericField("Convolve LGWS:", CONVOLVE_LWGS, 0);
+		gd.addNumericField("Transform_LGWS:", TRANSFORM_LWGS, 0);
+		gd.addNumericField("Render_LGWS:", RENDER_LWGS, 0);
+		gd.setInsets(10, 0, 10);
+		gd.addCheckbox("Use_binning_method", BINNING_METHOD);
 		gd.showDialog();
 		if(gd.wasCanceled()) return;
 		
@@ -69,7 +73,9 @@ public class GPUConvolve_plugin implements PlugIn
 		PIXEL_SIZE = (float) gd.getNextNumber();
 		
 		TRANSFORM_LWGS = (int) gd.getNextNumber();
-		CONVOLVE_LWGS = (int) gd.getNextNumber();
+		RENDER_LWGS = (int) gd.getNextNumber();
+		
+		BINNING_METHOD = gd.getNextBoolean();
 		
 		// DEBUG: print parameters
 		System.err.println("Image width = " + image_width);
@@ -90,18 +96,18 @@ public class GPUConvolve_plugin implements PlugIn
 	public ImagePlus exec(int image_width, int image_height, ResultsTable fluorophores)
 	{
 		// TODO: check arguments
-		return convolve(image_width, image_height, fluorophores);
+		return render(image_width, image_height, fluorophores);
 	}
 	
 	// ////////////////////////////////////////////////////////////////////////
 	
-	public static ImagePlus convolve(int image_width, int image_height, ResultsTable fluorophores)
+	public static ImagePlus render(int image_width, int image_height, ResultsTable fluorophores)
 	{
 		ImageProcessor ip = new FloatProcessor(image_width, image_height);
 		GPUBase gpu = null;
 		try
 		{
-			gpu = new GPUBase(false, false, true, false); // no double precision, no automatic mode, yes profiling and no debugging mode enabled
+			gpu = new GPUBase(false, false, true, true); // no double precision, no automatic mode, yes profiling and no debugging mode enabled
 		}
 		catch(CLException cle)
 		{
@@ -116,7 +122,7 @@ public class GPUConvolve_plugin implements PlugIn
 			BufferedReader opencl_kernel_reader = null;
 			try
 			{
-				InputStream resource_stream = gpu.getClass().getResourceAsStream("/convolution.cl");
+				InputStream resource_stream = gpu.getClass().getResourceAsStream("/render.cl");
 				if(resource_stream == null)
 				{
 					IJ.error("Could not load OpenCL kernel as resource from JAR file");
@@ -168,16 +174,17 @@ public class GPUConvolve_plugin implements PlugIn
 		}
 		
 		// set properties
-		GPUConvolve.setTransformLWGS(TRANSFORM_LWGS);
-		GPUConvolve.setConvolveLWGS(CONVOLVE_LWGS);
-		GPUConvolve.setPSFSigma(PSF_SIGMA);
-		GPUConvolve.setPixelSize(PIXEL_SIZE);
+		GPURender.setTransformLWGS(TRANSFORM_LWGS);
+		GPURender.setRenderLWGS(RENDER_LWGS);
+		GPURender.setPSFSigma(PSF_SIGMA);
+		GPURender.setPixelSize(PIXEL_SIZE);
+		GPURender.setBinningMethod(BINNING_METHOD);
 		
-		// run gpu convolve
-		GPUConvolve.run(gpu, fluorophores, ip);
+		// run gpu render
+		GPURender.run(gpu, fluorophores, ip);
 		
 		// reset image range
 		ip.resetMinAndMax();
-		return new ImagePlus("Convolved fluorophores result", ip);
+		return new ImagePlus("Render fluorophores result", ip);
 	}
 }
