@@ -37,6 +37,7 @@ public class GPURender_plugin implements PlugIn
 	private static float PIXEL_SIZE = 64.0f;
 	
 	private static boolean BINNING_METHOD = false;
+	private static boolean RANDOM_SIGMA = false;
 	
 	/**
 	 *	Constructor
@@ -62,6 +63,8 @@ public class GPURender_plugin implements PlugIn
 		gd.addNumericField("Render_LGWS:", RENDER_LWGS, 0);
 		gd.setInsets(10, 0, 10);
 		gd.addCheckbox("Use_binning_method", BINNING_METHOD);
+		gd.setInsets(10, 0, 10);
+		gd.addCheckbox("Random sigma", RANDOM_SIGMA);
 		gd.showDialog();
 		if(gd.wasCanceled()) return;
 		
@@ -76,6 +79,7 @@ public class GPURender_plugin implements PlugIn
 		RENDER_LWGS = (int) gd.getNextNumber();
 		
 		BINNING_METHOD = gd.getNextBoolean();
+		RANDOM_SIGMA = gd.getNextBoolean();
 		
 		// DEBUG: print parameters
 		System.err.println("Image width = " + image_width);
@@ -179,6 +183,7 @@ public class GPURender_plugin implements PlugIn
 		GPURender.setPSFSigma(PSF_SIGMA);
 		GPURender.setPixelSize(PIXEL_SIZE);
 		GPURender.setBinningMethod(BINNING_METHOD);
+		GPURender.setRandomSigma(RANDOM_SIGMA);
 		
 		// run gpu render
 		GPURender.run(gpu, fluorophores, ip);

@@ -35,6 +35,7 @@ public class GPURender
 	private static float PIXEL_SIZE = 64.0f;
 	
 	private static boolean USE_BINNING_METHOD = false;
+	private static boolean RANDOM_SIGMA = false;
 	
 	public static void setTransformLWGS(int lwgs)
 	{
@@ -59,6 +60,11 @@ public class GPURender
 	public static void setBinningMethod(boolean binning)
 	{
 		USE_BINNING_METHOD = binning;
+	}
+	
+	public static void setRandomSigma(boolean random)
+	{
+		RANDOM_SIGMA = random;
 	}
 	
 	/**
@@ -122,13 +128,22 @@ public class GPURender
 		}
 		
 		// convert data into (x,y,z,w)+ format
+		java.util.Random rnd = new java.util.Random();
 		float[] fluorophore_data = new float[4*fluorophore_count];
 		for(int i = 0; i < fluorophore_count; ++i)
 		{
 			fluorophore_data[4*i+0] = fluorophore_x[i];
 			fluorophore_data[4*i+1] = fluorophore_y[i];
 			fluorophore_data[4*i+2] = fluorophore_z[i];
-			fluorophore_data[4*i+3] = fluorophore_w[i];
+			if(RANDOM_SIGMA)
+			{
+				fluorophore_data[4*i+3] = (float) (3*PSF_SIGMA+rnd.nextGaussian()*PSF_SIGMA);
+				//System.err.println(fluorophore_data[4*i+3]);
+			}
+			else
+			{
+				fluorophore_data[4*i+3] = fluorophore_w[i];
+			}
 		}
 		
 		// ------------------------------------------------------------------
@@ -219,22 +234,34 @@ public class GPURender
 		
 		// ------------------------------------------------------------------
 		
-//		// DEBUG: retrieve transformed fluorophore data
-//		float[] transformed_fluorophores_data = new float[4*fluorophore_count];
-//		clEnqueueReadBuffer(gpu._ocl_queue, fluorophore_data_buffer, CL_TRUE, 0, 4 * fluorophore_count * CL_DATATYPE_SIZE, Pointer.to(transformed_fluorophores_data), 0, null, null);
-//
-//		// DEBUG: print transformed fluorophore data
-//		for(int i = 0; i < transformed_fluorophores_data.length; i+=4)
-//		{
-//			System.err.println(transformed_fluorophores_data[i] + "," + transformed_fluorophores_data[i+1] + "," + transformed_fluorophores_data[i+2] + "," + transformed_fluorophores_data[i+3]);
-//		}
+		// DEBUG: retrieve transformed fluorophore data
+		float[] transformed_fluorophores_data = new float[4*fluorophore_count];
+		clEnqueueReadBuffer(gpu._ocl_queue, fluorophore_data_buffer, CL_TRUE, 0, 4 * fluorophore_count * CL_DATATYPE_SIZE, Pointer.to(transformed_fluorophores_data), 0, null, null);
+
+		// DEBUG: print transformed fluorophore data
+		for(int i = 0; i < transformed_fluorophores_data.length; i+=4)
+		{
+			System.err.println(transformed_fluorophores_data[i] + "," + transformed_fluorophores_data[i+1] + "," + transformed_fluorophores_data[i+2] + "," + transformed_fluorophores_data[i+3]);
+		}
 		
 		// ==================================================================
 		
 		// STEP 2: render the fluorophores into an image
 		// NOTE: render is performed per sector (or batch of pixels)
 		//       to avoid watchdog timer kick in (and looks cool :D)
-		clEnqueueNDRangeKernel(gpu._ocl_queue, render_kernel, 1, null, new long[]{padded_pixel_count}, new long[]{RENDER_LWG_SIZE}, 0, null, kernel_event);
+		int work_size = 16*RENDER_LWG_SIZE;
+		int pixel_offset = 0;
+		for(pixel_offset = 0; pixel_offset < padded_pixel_count; pixel_offset += work_size)
+		{
+			// determine work size
+			if(pixel_offset + work_size > padded_pixel_count)
+			{
+				work_size = padded_pixel_count - pixel_offset;
+			}
+			
+			// render section of image
+			clEnqueueNDRangeKernel(gpu._ocl_queue, render_kernel, 1, new long[]{pixel_offset}, new long[]{work_size}, new long[]{RENDER_LWG_SIZE}, 0, null, kernel_event);
+		}
 		
 		// ==================================================================
 		

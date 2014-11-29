@@ -84,14 +84,8 @@ __kernel void convolve_fluorophores (
 					__private const int fluorophore_count)
 {
 	// TODO: additional parameters required
-	__private scalar_t psf_sigma_x = 1.8f;
-	__private scalar_t psf_sigma_y = psf_sigma_x; // symmetric
 	__private scalar_t psf_amplitude = 1000.0f;
 	__private scalar_t exposure_decay = 0.0f;
-	
-	// OPTIM: prescale simga
-	__private scalar_t prescaled_sigma_x = M_SQRT2_F * psf_sigma_x;
-	__private scalar_t prescaled_sigma_y = M_SQRT2_F * psf_sigma_y;
 	
 	// thread parameters
 	__private const int global_id = get_global_id(0);
@@ -141,6 +135,13 @@ __kernel void convolve_fluorophores (
 			__private scalar_t dy = cpy - local_fluorophores[i].element[1];
 			__private scalar_t dz = cpz - local_fluorophores[i].element[2];
 			//__private scalar_t dist = sqrt(dx * dx + dy * dy);// + dz * dz);
+			
+			// gaussian kernel size
+			__private scalar_t psf_sigma_x = local_fluorophores[i].element[3];
+			__private scalar_t psf_sigma_y = psf_sigma_x; // symmetric
+			
+			__private scalar_t prescaled_sigma_x = M_SQRT2_F * psf_sigma_x;
+			__private scalar_t prescaled_sigma_y = prescaled_sigma_x; // symmetric
 			
 			// calculate exposure factors
 			__private scalar_t derrx = erf((dx - 0.5f) / prescaled_sigma_x) - erf((dx + 0.5f) / prescaled_sigma_x);
