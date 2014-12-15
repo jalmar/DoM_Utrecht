@@ -17,15 +17,13 @@ using namespace std;
 int _tmain(int argc, _TCHAR* argv[])
 {
 	cl_platform_id test;
-	cl_uint num;
+	cl_uint num = 0;
 	cl_uint ok = 1;
-	clGetPlatformIDs(ok, &test, &num);
+	//clGetPlatformIDs(ok, &test, &num);
 	
 
 	cout << "test" << std::endl;
 	cout << "Number of OpenCL platforms found: " << num << std::endl;
 
-	Load_image();
-	
 	return 0;
 }

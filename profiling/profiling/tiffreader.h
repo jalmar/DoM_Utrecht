@@ -1,10 +1,10 @@
 #include <vector>
 #include <iostream>
-#include "libtiff\tiffio.h"
+//#include "libtiff\tiffio.h"
 
 using namespace std;
 
-TIFF* Load_image()
+/*TIFF* Load_image()
 {
 	//	TIFF* MultiPageTiff = TIFFOpen("E:\\storm_data\\test.tif", "r");
 	//	TIFF* MultiPageTiff = TIFFOpen("F:\\Projects\\Project_Storm\\data\\spots_snr_5_matlab.tif", "r");
@@ -35,4 +35,4 @@ TIFF* Load_image()
 	cout << "amount directories = " << dircount << endl;
 	
 	return MultiPageTiff;
-}
+}*/
