@@ -119,7 +119,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convolution.h" />
+    <ClInclude Include="c_timer.h" />
     <ClInclude Include="GeneratedFiles\ui_profiling_ui.h" />
+    <ClInclude Include="helper.h" />
     <ClInclude Include="info.h" />
     <ClInclude Include="transformations.h" />
   </ItemGroup>

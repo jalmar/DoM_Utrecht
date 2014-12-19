@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Globalization;
 using System.Reflection;
 using BitMiracle.LibTiff.Classic;
@@ -91,8 +92,14 @@ namespace profiler.io
 //                    buffer[2*i] = bytes[0];
 //                    buffer[2*i+1] = bytes[1];
 //                }
-                Console.WriteLine(imageData.ScanlineSize());
+                Console.WriteLine("ScanlineSize :" + imageData.ScanlineSize());
+//                Console.WriteLine(imageData.st.StripSize());
 //                Tiff.ShortsToByteArray(data, 0, data.Length,buffer,0);
+
+
+                int rasterScanlineSize = imageData.RasterScanlineSize();
+                int scanlineSize = imageData.ScanlineSize();
+                
                 for (int i = 0; i < imageHeight; i++)
                 {
 
@@ -102,12 +109,15 @@ namespace profiler.io
                         rowData[j] = data[i*imageWidth + j];
                     }
 
-                    Byte[] buffer = new byte[rowData.Length * sizeof(ushort)];
+                    Byte[] buffer = new byte[rowData.Length * sizeof(float)];
    
                     Buffer.BlockCopy(rowData, 0, buffer, 0, buffer.Length);
-
-                    
-                    imageData.WriteScanline(buffer, i);
+                    TiffCodec[] configuredCodecs = imageData.GetConfiguredCodecs();
+//                    TiffType.FLOAT
+//                imageData.WriteTile(buffer,0, 0, i, 0, 0);
+//                    imageData.WriteEncodedStrip(i, buffer, imageWidth * sizeof(float));
+                    imageData.WriteRawStrip(i, buffer, imageWidth);
+//                    imageData.WriteScanline(buffer, i);
                 }
                 Console.WriteLine(imageData.ScanlineSize());
                 imageData.FlushData();

@@ -36,6 +36,9 @@
     <Filter Include="utils">
       <UniqueIdentifier>{2a4e36be-632e-4ae3-84b4-b1be65247dcd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\utils">
+      <UniqueIdentifier>{4f4f8fc0-d099-43b9-a80e-a00272966f45}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -78,11 +81,17 @@
     <ClInclude Include="transformations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="info.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="convolution.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="c_timer.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="info.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="helper.h">
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

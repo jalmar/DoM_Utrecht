@@ -268,11 +268,11 @@ namespace profiler
 //            CsvData.WriteToDisk("..\\..\\..\\output.csv", resultImageData);
             TiffData.WriteToDisk(resultImageData, _saveFilename, _imageDimensionX, _imageDimensionY);
 
-//            Bitmap bitmap = new Bitmap(_imageDimensionX, _imageDimensionY);
+            Bitmap bitmap = new Bitmap(_imageDimensionX, _imageDimensionY);
 
-//            float max = resultImageData.Max();
+            float max = resultImageData.Max();
 
-//            float scale = 255/(float)max;
+            float scale = 255/(float)max;
 
 //            for (int r = 0; r < _imageDimensionY; r++)
 //            {
@@ -284,28 +284,71 @@ namespace profiler
 //                }
 //            }
 
-//            byte[] bytes = new byte[resultImageData.Length * sizeof(float)];
+            ushort[] ushortdata = new ushort[resultImageData.Length];
+
+            for (int i = 0; i < resultImageData.Length; i++)
+            {
+                ushortdata[i] = (ushort)resultImageData[i];
+            }
+
+            uint[] convertGray16ToRgb = ConvertGray16ToRGB(ushortdata, 16);
+
+            byte[] bytes = new byte[convertGray16ToRgb.Length * 4];
 //
-//            for (int index = 0; index < resultImageData.Length; index++)
-//            {
-//                byte[] bytes1 = BitConverter.GetBytes(resultImageData[index]);
-//                bytes[4 * index] = bytes1[0];
-//                bytes[4 * index + 1] = bytes1[1];
-//                bytes[4 * index + 2] = bytes1[2];
-//                bytes[4 * index + 3] = bytes1[3];
-//            }
+//            int[] resultImageData2 = new int[resultImageData.Length];
 //
-//            using (MemoryStream ms = new MemoryStream(bytes))
+            for (int index = 0; index < convertGray16ToRgb.Length; index++)
+            {
+//                resultImageData2[index] = (int)(scale*resultImageData[index]);
+
+                byte[] bytes1 = BitConverter.GetBytes(convertGray16ToRgb[index]);
+                bytes[index] = bytes1[0];
+                bytes[4 * index + 1] = bytes1[1];
+                bytes[4 * index + 2] = bytes1[2];
+                bytes[4 * index + 3] = bytes1[3];
+            }
+//
+//            for (int r = 0; r < _imageDimensionY; r++)
 //            {
-//                Image image = Bitmap.FromStream(ms);
-//                image.Save("c:\\temp.bmp");
+//                for (int c = 0; c < _imageDimensionX; c++)
+//                {
+//                    float value = resultImageData2[c*(r + 1)];
+//                    Color newColor = Color.FromArgb((int)(value), (int)(value), (int)(value));
+//                    bitmap.SetPixel(c,r, newColor);
+//                }
 //            }
+//            bitmap.Save("c:\\temp.bmp");
+
+
+            using (MemoryStream ms = new MemoryStream(bytes))
+            {
+                Image image = Bitmap.FromStream(ms);
+                image.Save("c:\\temp.bmp");
+            }
             
             Console.WriteLine("Writing data to file... done");
 
             stopwatch.Stop();
             Console.WriteLine("Convolve fluophores duration:\n\t" + stopwatch.Elapsed);
             Console.WriteLine("Computing... done");
+        }
+
+        /// <summary>Convert 16 bit gray to RGB</summary>
+        /// <param name="grayPixels">source pixels</param>
+        /// <param name="bitsStored">bits used [1..16]</param>
+        /// <returns>rgb pixels</returns>
+        private uint[] ConvertGray16ToRGB(ushort[] grayPixels, int bitsUsed)
+        {
+            int pixelCount = grayPixels.Length;
+            uint[] rgbPixels = new uint[pixelCount];
+            int shift = bitsUsed - 8;
+            for (int i = 0; i < pixelCount; i++)
+            {
+                uint gray = (uint)grayPixels[i] >> shift;
+                rgbPixels[i] = 0xff000000U | gray | (gray << 8) | (gray <<
+                16);
+            }
+            return (rgbPixels);
         }
 
         private void buttonSelectFile_Click(object sender, EventArgs e)

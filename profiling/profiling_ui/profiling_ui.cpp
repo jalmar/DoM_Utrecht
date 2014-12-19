@@ -132,8 +132,6 @@ void profiling_ui::on_pushButtonDeviceListInfo_clicked()
 void profiling_ui::on_pushButtonCalculate_clicked()
 {
 	cout << "calculating..." << endl;
-	Transformations *qwe = new Transformations();
-
 	float transformation[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	
 	float dimensionX = ui.lineEditImageDimensionX->text().toFloat();
@@ -144,21 +142,19 @@ void profiling_ui::on_pushButtonCalculate_clicked()
 	float translationY = ui.lineEditTranslationY->text().toFloat();
 	float translationZ = ui.lineEditTranslationZ->text().toFloat();
 
-//	qwe->GetTransformation();
-
 	Transformations::GetTransformation(TransformationType::Affine, dimensionX, dimensionY, dimensionZ, translationX, translationY, translationZ, transformation);
 	//TODO set transformation
 
 	//TODO determine the ComputeContext
 	//var context = new ComputeContext(_selectedComputeDevice.Type, new ComputeContextPropertyList(_selectedComputePlatform), null, IntPtr.Zero);
-	new convolution();
+	new convolution(platforms[ui.comboBoxSelectPlatform->currentIndex()], devices[ui.comboBoxSelectDevice->currentIndex()], transformation);
 	//CalculateConvolution();
 }
 
 void profiling_ui::ComboBoxTransformationType_onCurrentIndexChanged()
 {
 	QString current_text = ui.comboBoxTransformationType->currentText();
-	cout << "TransformationType set too :" << current_text.toStdString() << endl;
+	cout << "TransformationType set too : " << current_text.toStdString() << endl;
 }
 
 void profiling_ui::on_pushButtonSelectSourceFile_clicked()
